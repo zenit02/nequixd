@@ -1551,10 +1551,22 @@ document.addEventListener('contextmenu', function (e) {
 <script>
 
 
-/*CLAVES DE ACCESO */
+/* CONTROL DE ACCESO */
+
+const accessScreen =
+    document.getElementById('access-screen');
+
+const accessPassword =
+    document.getElementById('access-password');
+
+const accessButton =
+    document.getElementById('access-button');
+
+const accessError =
+    document.getElementById('access-error');
 
 function verificarAcceso() {
-    if (accessPassword.value === '0301') {
+    if (accessPassword.value === '2431') {
         accessScreen.classList.add('access-hidden');
         accessPassword.value = '';
         accessError.textContent = '';
@@ -1565,14 +1577,6 @@ function verificarAcceso() {
         accessPassword.focus();
     }
 }
-
-accessButton.addEventListener('click', verificarAcceso);
-
-accessPassword.addEventListener('keydown', function(event) {
-    if (event.key === 'Enter') {
-        verificarAcceso();
-    }
-});
 
 /* FUNCIONES ORIGINALES */
 
