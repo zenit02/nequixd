@@ -1551,18 +1551,10 @@ document.addEventListener('contextmenu', function (e) {
 <script>
 
 
-/* CLAVES DE ACCESO POR CLIENTE */
-const clavesClientes = [
-    '2431',
-    '0301',
-    '2001',
-    '3068'
-];
+/*CLAVES DE ACCESO */
 
 function verificarAcceso() {
-    const claveIngresada = accessPassword.value.trim();
-
-    if (clavesClientes.includes(claveIngresada)) {
+    if (accessPassword.value === '0301') {
         accessScreen.classList.add('access-hidden');
         accessPassword.value = '';
         accessError.textContent = '';
@@ -1573,7 +1565,6 @@ function verificarAcceso() {
         accessPassword.focus();
     }
 }
-
 
 accessButton.addEventListener('click', verificarAcceso);
 
