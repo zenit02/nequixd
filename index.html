@@ -1550,22 +1550,19 @@ document.addEventListener('contextmenu', function (e) {
 
 <script>
 
-/* CONTROL DE ACCESO */
 
-const accessScreen =
-    document.getElementById('access-screen');
-
-const accessPassword =
-    document.getElementById('access-password');
-
-const accessButton =
-    document.getElementById('access-button');
-
-const accessError =
-    document.getElementById('access-error');
+/* CLAVES DE ACCESO POR CLIENTE */
+const clavesClientes = [
+    '2431',
+    '0301',
+    '2001',
+    '3068'
+];
 
 function verificarAcceso() {
-    if (accessPassword.value === '2431') {
+    const claveIngresada = accessPassword.value.trim();
+
+    if (clavesClientes.includes(claveIngresada)) {
         accessScreen.classList.add('access-hidden');
         accessPassword.value = '';
         accessError.textContent = '';
@@ -1576,6 +1573,7 @@ function verificarAcceso() {
         accessPassword.focus();
     }
 }
+
 
 accessButton.addEventListener('click', verificarAcceso);
 
