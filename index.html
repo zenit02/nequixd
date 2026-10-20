@@ -1575,8 +1575,13 @@ function verificarAcceso() {
             'Clave incorrecta. Acceso denegado.';
         accessPassword.value = '';
         accessPassword.focus();
+		accessButton.addEventListener('click', verificarAcceso);
+
+accessPassword.addEventListener('keydown', function(event) {
+    if (event.key === 'Enter') {
+        verificarAcceso();
     }
-}
+});
 
 /* FUNCIONES ORIGINALES */
 
