@@ -1,0 +1,2283 @@
+<!doctype html>
+<html lang="es">
+  <head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+	<title>Nequixd</title>
+
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+:root{
+    --ink:#200020;
+    --muted:#6e626e;
+    --pink:#e2007a;
+    --status:#c85b70;
+    --green:#b7efd8;
+    --bg-card:#FCF8FC;
+}
+*{box-sizing:border-box}
+body{
+    margin:0;
+    background:#ffffff;
+    color:var(--ink);
+    font-family:Manrope,Arial,sans-serif;
+}
+
+/* COMPROBANTE ORIGINAL Y MODAL */
+
+.modal{
+    position:fixed;
+    inset:0;
+    z-index:100;
+    background:#170a18a6;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    padding:12px;
+}
+.modal.open{display:flex}
+.modal-inner{
+    width:min(100%,480px);
+    max-height:calc(100dvh - 24px);
+    display:flex;
+    flex-direction:column;
+    background:#faf6f9;
+    border-radius:10px;
+    overflow:hidden;
+    box-shadow:0 15px 60px #0004;
+}
+.modal-head{
+    height:58px;
+    flex:0 0 58px;
+    display:flex;
+    align-items:center;
+    gap:22px;
+    padding:0 18px;
+    font-size:17px;
+    font-weight:700;
+}
+.modal-head button{
+    background:transparent;
+    color:var(--ink);
+    width:auto;
+    padding:0;
+    margin:0;
+    font-size:29px;
+    font-weight:400;
+    border:0;
+    cursor:pointer;
+}
+.modal-head #back{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:0;
+    width:29px;
+    height:40px;
+    flex-shrink:0;
+}
+.icono-atras{
+    display:block;
+    width:31px;
+    height:31px;
+    object-fit:contain;
+    flex-shrink:0;
+    filter:
+        drop-shadow(0.1px 0 0 currentColor)
+        drop-shadow(-0.1px 0 0 currentColor)
+        drop-shadow(0 0.1px 0 currentColor)
+        drop-shadow(0 -0.1px 0 currentColor);
+}
+.receipt{
+    background-image:url('./fondo.png')!important;
+	touch-action: none;
+    overscroll-behavior: none;
+    background-size:100% 100%!important;
+    background-position:center!important;
+    background-repeat:no-repeat!important;
+    background-color:transparent!important;
+}
+
+.receipt::-webkit-scrollbar{display:none}
+body.modal-open{overflow:hidden}
+.receipt>*{position:relative}
+.status{
+    color:var(--status);
+    font-size:17px;
+    font-weight:500;
+    display:flex;
+    align-items:center;
+    gap:9px;
+    margin:17px 0 19px;
+}
+.circle{
+    border:2px solid currentColor;
+    border-radius:50%;
+    width:24px;
+    height:24px;
+    display:grid;
+    place-items:center;
+    font-size:15px;
+    line-height:1;
+}
+.dotted{
+    border-top:2.3px dotted #d6d0d6;
+	width: calc(100% - 12px);
+	margin-left: 6px;
+    margin-bottom:17px;
+	transform: translateY(18px);
+}
+.qrbox{
+    width:112px;
+    height:112px;
+    flex:0 0 154px;
+	transform:translateY(29px);
+    margin:0 auto 14px;
+    padding:5px;
+    border:4.2px solid var(--green);
+    border-radius:7px;
+    background:#fff;
+    display:grid;
+    place-items:center;
+}
+.qr{
+    position:relative;
+    width:103%;
+    height:103%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:white;
+    overflow:hidden;
+}
+.qr canvas{
+    display:block;
+    width:100%!important;
+    height:100%!important;
+    max-width:100%;
+    max-height:100%;
+    object-fit:contain;
+    margin:auto;
+}
+.qr img:not(.qr-logo){
+    display:block;
+    width:100%!important;
+    height:100%!important;
+    max-width:100%;
+    max-height:100%;
+    object-fit:contain;
+    margin:auto;
+}
+.qr .qr-logo{
+    position:absolute;
+    width:43px;
+    height:43px;
+    object-fit:contain;
+    padding:4px;
+    border-radius:50%;
+    top:50%;
+    left:50%;
+    transform:translate(-50%,-50%);
+    z-index:2;
+    pointer-events:none;
+}
+.icono-compartir{
+    width:37px;
+    height:37px;
+    object-fit:contain;
+    display:block;
+    flex-shrink:0;
+    filter:
+        drop-shadow(0.4px 0 0 #210021)
+        drop-shadow(0.4px 0 0 #210021);
+}
+.modal-head{
+    padding-right:0.5px!important;
+}
+.qr i{background:#111}
+.qr i:nth-child(4n),
+.qr i:nth-child(7n),
+.qr i:nth-child(13n),
+.qr i:nth-child(17n){
+    background:white;
+}
+.qrlabel{
+    padding-left:10px;
+    transform:translateY(35px);
+    display:flex;
+    align-items:flex-start;
+    gap:6px;
+}
+.infoicon{
+    width:19px;
+    height:19px;
+    object-fit:contain;
+    filter:drop-shadow(0.5px 0 0 currentColor);
+}
+.icono-flecha{
+    width:20px;
+    height:20px;
+    object-fit:contain;
+    display:inline-block;
+    vertical-align:middle;
+    flex-shrink:0;
+    filter:
+        drop-shadow(0.2px 0 0 currentColor)
+        drop-shadow(-0.2px 0 0 currentColor)
+        drop-shadow(0 0.2px 0 currentColor)
+        drop-shadow(0 -0.2px 0 currentColor);
+}
+.info{
+    font-size:15px;
+    line-height:1.3;
+    font-weight:400;
+    margin-bottom:17px;
+    overflow-wrap:anywhere;
+    color:#302033;
+}
+.value{
+    font-size:15px;
+    font-weight:500;
+    line-height:1.3;
+    margin-top:2px;
+    color:#29152b;
+}
+.payment-detail .value{font-size:16px}
+.amount{
+    font-size:16px;
+    color:#29152b;
+    font-weight:600;
+}
+.stamp{
+    position:relative!important;
+    left:auto;
+    right:auto;
+    top:auto;
+    transform:none;
+    border:1px solid #c8006f88;
+    color:#8b245d;
+    font-weight:700;
+    font-size:10px;
+    text-align:center;
+    padding:5px 3px;
+    letter-spacing:.5px;
+    background:#ffffffdf;
+    z-index:3;
+    pointer-events:none;
+    order:99;
+    margin-top:8px;
+    flex:0 0 auto;
+}
+.bottom{
+    margin-top:auto;
+    padding-top:6px;
+    flex:0 0 auto;
+}
+.bottom button{
+    margin:0;
+    height:50px;
+    border-radius:7px;
+    font-size:18px;
+    font-weight:500;
+    background:var(--pink);
+    color:#fff;
+    border:0;
+    width:100%;
+    cursor:pointer;
+}
+.closebutton{
+    background:transparent;
+    color:var(--ink);
+    margin:0;
+    width:auto;
+    padding:8px 12px;
+    font-size:16px;
+}
+
+@media(max-width:420px){
+    .modal{padding:0}
+    .modal-inner{
+        width:100%;
+        height:100dvh;
+        max-height:100dvh;
+        border-radius:0;
+    }
+    .modal-head{
+        height:54px;
+        flex-basis:54px;
+        font-size:17px;
+        gap:18px;
+    }
+    .receipt{
+        height:calc(100dvh - 54px);
+        padding:12px 25px 10px;
+        overflow:hidden;
+        background:url('./assets/fondo.png') center / 100% 100% no-repeat;
+    }
+    .status{
+        margin:16px 0 15px;
+        font-size:16px;
+		transform:translateY(10px);
+    }
+    .dotted{margin-bottom:13px}
+    .qrbox{
+        width:140px;
+        height:140px;
+        flex-basis:130px;
+        margin-bottom:12px;
+    }
+    .qrlabel{
+        font-size:12px;
+        margin-bottom:14px;
+    }
+    .info,.value{font-size:14.5px}
+    .amount{
+        font-size:15px;
+        font-weight:500;
+    }
+    .info{margin-bottom:14px}
+    .payment-detail .value{font-size:15px}
+    .bottom button{
+        height:48px;
+        font-size:17px;
+    }
+}
+
+@media print{
+    body *{visibility:hidden}
+    .modal.open,.modal.open *{visibility:visible}
+    .modal{
+        display:block!important;
+        position:absolute;
+        inset:0;
+        background:white;
+        padding:0;
+    }
+    .modal-inner{
+        width:100%;
+        max-height:none;
+        box-shadow:none;
+    }
+    .modal-head{display:none}
+    .receipt{
+        height:100vh;
+        max-height:none;
+        overflow:visible;
+    }
+    .stamp{display:block}
+}
+
+/* =========================================
+   FORMULARIO PRINCIPAL REDUCIDO Y COMPACTO
+   ========================================= */
+
+body:not(.modal-open) {
+    background: #ffffff;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* TOPBAR */
+.app-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px 6px;
+    background: #fff;
+}
+
+.app-header .btn-icon {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #1a001a;
+}
+
+.app-header .btn-icon svg {
+    width: 24px;
+    height: 24px;
+    stroke: #1a001a;
+    stroke-width: 2.2;
+}
+
+/* MAIN FORM WRAPPER COMPACTO */
+.app-container {
+    flex: 1;
+    max-width: 440px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 4px 18px 24px;
+    display: flex;
+    flex-direction: column;
+}
+
+.app-title {
+    font-size: 26px;
+    font-weight: 700;
+    color: #1c001c;
+    margin: 0 0 16px 0;
+}
+
+/* TARJETAS DE ENTRADA COMPACTAS */
+.form-card {
+    background: var(--bg-card);
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin-bottom: 6px;
+    position: relative;
+}
+
+.form-card-label {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--pink);
+    margin-bottom: 2px;
+}
+
+/* ETIQUETA FLOTANTE: grande y oscura al estar vacío, pequeña y rosada arriba al escribir */
+.form-card-float {
+    box-sizing: border-box;
+    min-height: 58px;
+    padding: 25px 14px 9px;
+}
+
+.form-card-float .form-card-label {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    margin: 0;
+    transform: translateY(-50%);
+    font-size: 15px;
+    font-weight: 400;
+    line-height: 1.2;
+    color: #190419;
+    white-space: nowrap;
+    transition: top .15s ease, transform .15s ease, font-size .15s ease, color .15s ease;
+}
+
+.form-card-float:focus-within .form-card-label,
+.form-card-float.is-active .form-card-label {
+    top: 8px;
+    transform: none;
+    font-size: 14px;
+    color: #C01E7F;
+}
+
+.form-card-float .form-card-input {
+    height: 24px;
+    line-height: 24px;
+}
+
+/* El ícono de contactos queda centrado en la tarjeta */
+.form-card-float .icon-contacts {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    padding-left: 0;
+}
+
+#phone {
+    padding-right: 40px;
+}
+
+.form-card-body {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* TRAZO LIGERO EN INPUTS (FONT-WEIGHT: 400) */
+.form-card-input {
+    width: 100%;
+    border: none;
+    background: transparent;
+    font-family: inherit;
+    font-size: 16.5px;
+    font-weight: 400;
+    color: #200020;
+    outline: none;
+    padding: 0;
+}
+
+.form-card-input::placeholder {
+    color: transparent;
+}
+
+/* ICONO CONTACTOS */
+.icon-contacts {
+    color: #200020;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-left: 8px;
+}
+
+/* SUBTEXTO DE AYUDA */
+.field-subtext {
+    font-size: 12.5px;
+    color: #8c828c;
+    margin: 4px 0 14px 2px;
+    line-height: 1.25;
+}
+
+/* TEXTAREA DE MENSAJE COMPACTO */
+.form-card-textarea {
+    width: 100%;
+    min-height: 65px;
+    border: none;
+    background: transparent;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 400;
+    color: #200020;
+    outline: none;
+    resize: none;
+    padding: 0;
+}
+
+.form-card-textarea::placeholder {
+    color: #190419;
+    opacity: 1;
+}
+
+/* SECCIÓN ORIGEN DE FONDOS COMPACTA */
+.section-subtitle {
+    font-size: 18px;
+    font-weight: 500;
+    color: #1c001c;
+    margin: 16px 0 10px 0;
+}
+
+.source-selector-card {
+    background: #ffffff;
+    border: none;
+    border-radius: 10px;
+    padding: 6px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 2px 12px rgba(32,0,32,0.14), 0 1px 3px rgba(32,0,32,0.08);
+    position: relative;
+    cursor: pointer;
+}
+
+.source-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.source-icon {
+    width: 42px;
+    height: 42px;
+    display: block;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+
+.source-select-custom {
+    font-size: 15.5px;
+    font-weight: 600;
+    color: #200020;
+    border: none;
+    background: transparent;
+    outline: none;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    padding-right: 18px;
+}
+
+.source-arrow {
+    color: #200020;
+    display: flex;
+    align-items: center;
+}
+
+.source-arrow-img {
+    width: 26px;
+    height: 26px;
+    display: block;
+    object-fit: contain;
+    margin-right: 6px;
+}
+
+/* BOTÓN CONTINUAR COMPACTO */
+.btn-continue {
+    width: 100%;
+    height: 48px;
+    margin-top: auto;
+    background: var(--pink);
+    border: none;
+    border-radius: 8px;
+    color: #ffffff;
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    display: block;
+    box-shadow: 0 3px 10px rgba(226, 0, 122, 0.2);
+    touch-action: manipulation;
+    pointer-events: auto;
+    position: relative;
+    z-index: 2;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.btn-continue:active {
+    transform: scale(0.99);
+    filter: brightness(0.95);
+}
+
+/* PREVENIR SELECCIÓN DE TEXTO */
+html, body, body * {
+    -webkit-user-select: none !important;
+    user-select: none !important;
+    -webkit-touch-callout: none !important;
+    -webkit-tap-highlight-color: transparent;
+}
+
+input, textarea, select, [contenteditable="true"] {
+    -webkit-user-select: text !important;
+    user-select: text !important;
+    -webkit-touch-callout: default !important;
+}
+
+/* Pantalla inicial Nequixd, estilo propio de demostración */
+
+#home-screen{position:fixed;inset:0;z-index:500;background-image:url('fondi.png');background-size:cover;background-position:center;background-repeat:no-repeat;color:#240526;display:flex;flex-direction:column;font-family:Manrope,Arial,sans-serif;overflow:auto}
+
+.home-top{display:flex;align-items:center;gap:12px;min-height:62px}
+.home-icon{width:54px;height:54px;border:0;border-radius:9px;background:#563b58;color:#fff;display:grid;place-items:center;flex-shrink:0}
+.home-icon svg{width:31px;height:31px;fill:none;stroke:currentColor;stroke-width:1.7}
+.home-greeting{display:flex;flex-direction:column;gap:3px;font-size:16px;line-height:1.3}
+.home-greeting strong{font-size:23px;font-weight:80}
+.home-actions{margin-left:auto;display:flex;gap:8px}
+.home-icon.simple{background:transparent;width:32px;height:42px;font-size:27px}
+.home-balance{text-align:center;padding-top:26px}
+.balance-label{font-size:17px;opacity:.96}
+.balance-value{font-size:34px;font-weight:800;letter-spacing:.5px;margin:5px 0 15px}
+.balance-total{font-size:18px}
+.money-dropdown{margin-top:18px;padding:8px 19px;border:1px solid #fff;border-radius:7px;background:transparent;color:#fff;font:inherit;font-size:15px}
+.money-dropdown span{margin-left:10px;font-size:22px}
+.demo-ribbon{position:absolute;left:50%;bottom:27px;transform:translateX(-50%);font-size:9px;letter-spacing:1.7px;white-space:nowrap;color:#f4c8e4}
+.home-content{flex:1;min-height:0;padding:6px 18px 112px;overflow:auto}
+.promo-track{display:flex;gap:14px;overflow-x:auto;padding:6px 0 16px;scrollbar-width:none}
+.promo-track::-webkit-scrollbar,.shortcut-row::-webkit-scrollbar{display:none}
+.promo-card{flex:0 0 88%;min-height:142px;background:#eee8f4;border:1px solid #e4dce9;border-radius:12px;padding:20px 16px;display:flex;align-items:center;justify-content:space-between;gap:8px;color:#28162d}
+.promo-card strong{font-size:16px}.promo-card p{font-size:14px;line-height:1.3;margin:7px 0 12px;max-width:230px}
+.promo-card button{border:0;border-radius:6px;background:#29052b;color:white;padding:7px 17px;font:inherit}
+.promo-symbol{flex:0 0 84px;min-width:84px;display:flex;align-items:center;justify-content:center;font-size:58px;font-weight:800;color:#178fe0;padding:0;overflow:visible}
+.promo-symbol img{width:72px;height:72px;max-width:none;object-fit:contain;display:block;flex:0 0 auto}
+.promo-card.second{background:#f4eaf2}
+.home-section{margin-top:8px}
+.home-section h2{font-size:16px;font-weight:500;color:#5e5060;margin:12px 0 15px}
+.shortcut-row{display:flex;gap:13px;overflow-x:auto;scrollbar-width:none;padding:0 0 8px}
+.shortcut{border:0;background:transparent;color:#28172d;display:flex;flex:0 0 83px;flex-direction:column;align-items:center;gap:7px;font:inherit;font-size:12px;text-align:center}
+.shortcut-art{width:76px;height:76px;border:1px solid #e5e0e6;border-radius:7px;display:grid;place-items:center;background:#fff;color:#bd1682;font-size:33px}
+.shortcut-art.paypal{color:#104c9a;font-weight:900;font-style:italic;font-size:36px}
+.shortcut-art.blue{background:#e8f1ff;color:#1679d7;font-weight:800;border-color:#d4e4f7}
+.edit-favs{float:right;background:transparent;border:0;color:#2a102e;font-size:23px}
+.home-nav{position:fixed;bottom:10px;left:16px;right:16px;height:70px;border-radius:15px;background:#fff;box-shadow:0 3px 18px #24052625;display:flex;align-items:center;gap:4px;padding:5px;z-index:2}
+.nav-item{flex:1;height:58px;border:0;background:transparent;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:#29132e;font:inherit;font-size:12px}
+.nav-item span{font-size:23px;line-height:1.1}
+.nav-item .nav-icon{display:flex;align-items:center;justify-content:center;width:25px;height:25px}
+.nav-item .nav-icon svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.45;stroke-linecap:round;stroke-linejoin:round}
+.nav-item.selected .nav-icon svg{fill:currentColor;stroke:currentColor}
+.nav-item.selected .nav-icon svg path{fill:currentColor}
+.nav-item.selected{background:#eee7f6;font-weight:700}
+.nav-money{width:68px;height:62px;flex-shrink:0;border:0;border-radius:12px;background:#df0086;color:#fff;font-size:35px;font-weight:500;box-shadow:0 3px 10px #df008633}
+#home-toast{position:fixed;left:50%;bottom:92px;transform:translateX(-50%);background:#2a082d;color:#fff;padding:10px 15px;border-radius:8px;font-size:13px;display:none;max-width:90%;text-align:center;z-index:5}
+#home-screen.hidden{display:none}
+@media(max-width:420px){.home-hero{height:365px;flex-basis:365px;padding-left:18px;padding-right:18px}.home-actions{gap:4px}.home-icon.simple{width:28px}.home-content{padding-left:16px;padding-right:16px}.promo-card{flex-basis:88%}}
+
+
+/* Ajuste compacto para acercarse a la escala de la captura de referencia */
+.home-hero{
+  height:340px;
+  flex-basis:340px;
+  padding:16px 16px 28px;
+  border-radius:0 0 46% 7%;
+}
+.home-top{gap:10px;min-height:56px}
+.home-icon{width:48px;height:48px;background:transparent;border-radius:0;padding:0}
+.home-icon svg{width:28px;height:28px}
+.home-greeting{font-size:15px}
+.home-greeting strong{font-size:21px}
+.home-actions{gap:5px}
+.home-icon.simple{width:29px;height:38px;font-size:24px}
+.home-balance{padding-top:22px}
+.balance-label{font-size:16px}
+.balance-value{font-size:31px;margin:4px 0 12px}
+.balance-total{font-size:17px}
+.money-dropdown{margin-top:16px;padding:7px 17px;font-size:14px}
+.demo-ribbon{bottom:24px;font-size:8px}
+.home-content{padding:0 16px 96px}
+.promo-track{gap:12px;padding:5px 0 13px}
+.promo-card{flex-basis:88%;min-height:126px;padding:16px 14px;border-radius:11px}
+.promo-card strong{font-size:15px}
+.promo-card p{font-size:13px;margin:6px 0 10px}
+.promo-card button{font-size:13px;padding:6px 15px}
+.promo-symbol{flex-basis:78px;min-width:78px;font-size:49px;padding:0}
+.home-section{margin-top:6px}
+.home-section h2{font-size:15px;margin:10px 0 13px}
+.shortcut-row{gap:11px;padding-bottom:6px}
+.shortcut{flex-basis:75px;gap:6px;font-size:11.5px}
+.shortcut-art{width:68px;height:68px;font-size:29px}
+.shortcut-art.paypal{font-size:32px}
+.home-nav{left:14px;right:14px;bottom:9px;height:64px;border-radius:14px;padding:4px;gap:3px}
+.nav-item{height:54px;font-size:11px;border-radius:10px}
+.nav-item span{font-size:21px}
+.nav-money{width:60px;height:56px;border-radius:10px;font-size:32px}
+#home-toast{bottom:82px;font-size:12px;padding:9px 13px}
+@media(max-width:420px){
+  .home-hero{height:340px;flex-basis:340px;padding:16px 16px 28px}
+  .home-actions{gap:4px}
+  .home-icon.simple{width:27px}
+  .home-content{padding-left:14px;padding-right:14px;padding-bottom:90px}
+  .promo-card{flex-basis:88%}
+  .home-nav{left:12px;right:12px}
+}
+
+
+
+/* REESCALADO EXTRA: interfaz inicial más pequeña y proporcionada */
+.home-hero{height:270px!important;flex-basis:270px!important;padding:12px 14px 22px!important}
+.home-top{min-height:44px!important;gap:8px!important}
+.home-icon{width:40px!important;height:40px!important;border-radius:0!important;background:transparent!important;padding:0!important}
+.home-icon svg{width:23px!important;height:23px!important}
+.home-greeting{font-size:13px!important;gap:1px!important}
+.home-greeting strong{font-size:18px!important}
+.home-actions{gap:2px!important}
+.home-icon.simple{width:25px!important;height:32px!important;font-size:20px!important}
+.home-balance{padding-top:15px!important}
+.balance-label{font-size:13px!important}
+.balance-value{font-size:26px!important;margin:3px 0 8px!important}
+.balance-total{font-size:14px!important}
+.money-dropdown{margin-top:10px!important;padding:5px 13px!important;font-size:12px!important;border-radius:6px!important}
+.money-dropdown span{font-size:17px!important;margin-left:7px!important}
+.demo-ribbon{bottom:18px!important;font-size:7px!important;letter-spacing:1.2px!important}
+.home-content{padding:0 12px 82px!important}
+.promo-track{gap:9px!important;padding:4px 0 9px!important}
+.promo-card{min-height:100px!important;padding:10px 11px!important;border-radius:9px!important;gap:5px!important}
+.promo-card strong{font-size:13px!important}
+.promo-card p{font-size:11px!important;margin:4px 0 7px!important}
+.promo-card button{font-size:11px!important;padding:5px 10px!important}
+.promo-symbol{flex-basis:68px!important;min-width:68px!important;font-size:38px!important;padding:0!important}
+.promo-symbol img{width:64px!important;height:64px!important;max-width:none!important}
+.home-section{margin-top:4px!important}
+.home-section h2{font-size:13px!important;margin:7px 0 9px!important}
+.shortcut-row{gap:7px!important;padding-bottom:4px!important}
+.shortcut{flex-basis:62px!important;gap:4px!important;font-size:10px!important}
+.shortcut-art{width:54px!important;height:54px!important;font-size:24px!important;border-radius:6px!important}
+.shortcut-art.paypal{font-size:26px!important}
+.edit-favs{font-size:19px!important}
+.home-nav{left:10px!important;right:10px!important;bottom:7px!important;height:54px!important;border-radius:11px!important;padding:3px!important;gap:2px!important}
+.nav-item{height:46px!important;font-size:9px!important;border-radius:8px!important;gap:1px!important}
+.nav-item span{font-size:17px!important}
+.nav-money{width:49px!important;height:46px!important;border-radius:8px!important;font-size:26px!important}
+#home-toast{bottom:68px!important;font-size:11px!important;padding:7px 10px!important}
+@media(max-width:420px){.home-hero{height:270px!important;flex-basis:270px!important;padding:12px 12px 20px!important}.home-content{padding-left:11px!important;padding-right:11px!important;padding-bottom:76px!important}.home-nav{left:9px!important;right:9px!important}}
+
+
+/* Ajuste fino: conservar la parte superior compacta y ampliar el contenido desde “Explora Nequi” hacia abajo */
+.home-content{padding-left:14px!important;padding-right:14px!important;padding-bottom:88px!important}
+.promo-track{gap:10px!important;padding:5px 0 12px!important}
+.promo-card{min-height:118px!important;padding:13px 13px!important;gap:7px!important;border-radius:10px!important}
+.promo-card strong{font-size:15px!important}
+.promo-card p{font-size:12.5px!important;margin:5px 0 8px!important;line-height:1.35!important}
+.promo-card button{font-size:12px!important;padding:6px 12px!important}
+.promo-symbol{flex-basis:74px!important;min-width:74px!important;font-size:44px!important;padding:0!important}
+.promo-symbol img{width:68px!important;height:68px!important;max-width:none!important}
+.home-section{margin-top:6px!important}
+.home-section h2{font-size:15px!important;margin:9px 0 11px!important}
+.shortcut-row{gap:9px!important;padding-bottom:6px!important}
+.shortcut{flex-basis:70px!important;gap:5px!important;font-size:11px!important}
+.shortcut-art{width:62px!important;height:62px!important;font-size:27px!important;border-radius:7px!important}
+.shortcut-art.paypal{font-size:29px!important}
+ .shortcut-art img{width:82%!important;height:82%!important;max-width:100%!important;max-height:100%!important;object-fit:contain!important;display:block!important;border-radius:0!important}
+.shortcut-art img.soat-logo{width:112%!important;height:112%!important;max-width:none!important;max-height:none!important} 
+
+.edit-favs{font-size:21px!important}
+.home-nav{left:10px!important;right:10px!important;bottom:7px!important;height:59px!important;border-radius:12px!important;padding:3px!important;gap:2px!important}
+.nav-item{height:51px!important;font-size:10px!important;border-radius:9px!important;gap:1px!important}
+.nav-item span{font-size:20px!important}
+.nav-money{width:55px!important;height:51px!important;border-radius:9px!important;font-size:29px!important}
+#home-toast{bottom:74px!important;font-size:11px!important;padding:8px 11px!important}
+@media(max-width:420px){.home-content{padding-left:12px!important;padding-right:12px!important;padding-bottom:82px!important}.home-nav{left:9px!important;right:9px!important}}
+
+
+
+/* Último ajuste solicitado: tarjeta Explora un poco más grande y mayor separación entre secciones */
+.promo-card:first-child{min-height:128px!important;padding:15px 14px!important}
+.promo-card:first-child strong{font-size:16px!important}
+.promo-card:first-child p{font-size:13px!important}
+.promo-card:first-child button{font-size:12.5px!important;padding:7px 13px!important}
+.promo-card:first-child .promo-symbol{font-size:47px!important}
+.home-section.favorites{margin-top:16px!important}
+@media(max-width:420px){.promo-card:first-child{min-height:134px!important;padding:16px 14px!important}.home-section.favorites{margin-top:12px!important}}
+/* Tamaño de los recuadros promocionales ajustado a la proporción de la fotografía de referencia */
+.promo-card{min-height:134px!important;padding:16px 15px!important}
+.promo-card:first-child{min-height:134px!important;padding:16px 15px!important}
+.promo-card strong{font-size:15.5px!important}
+.promo-card p{font-size:13px!important;line-height:1.35!important;margin:6px 0 9px!important}
+.promo-card button{font-size:12.5px!important;padding:7px 13px!important}
+.promo-symbol{font-size:47px!important}
+@media(max-width:420px){.promo-card,.promo-card:first-child{min-height:134px!important;padding:16px 14px!important}}
+.home-section.favorites .shortcut-row{
+  margin-top:16px!important;
+}
+
+
+
+/* Ajustes solicitados: bajar ligeramente el contenido sin cambiar las imágenes,
+   mantener Inicio fijo y evitar zoom en Inicio y Envía plata. */
+#home-screen{overflow:hidden!important;overscroll-behavior:none!important;touch-action:pan-x!important}
+.home-content{padding-top:22px!important;overflow:hidden!important;overscroll-behavior:none!important;touch-action:pan-x!important}
+#main-app-header,#main-app-container{touch-action:pan-x!important;overscroll-behavior:none!important}
+html,body{overscroll-behavior:none;}
+
+</style>
+
+<style>
+/* Ajuste final: tarjetas de Sugeridos un poco más grandes como en la referencia */
+.promo-card{min-height:146px!important;padding:18px 16px!important}
+.promo-card strong{font-size:16px!important}
+.promo-card p{font-size:13.5px!important;margin:7px 0 10px!important}
+.promo-card button{font-size:13px!important;padding:7px 14px!important}
+.promo-symbol{font-size:49px!important}
+@media(max-width:420px){.promo-card{min-height:146px!important;padding:17px 15px!important}}
+.home-actions{gap:18px!important}
+@media(max-width:420px){.home-actions{gap:15px!important}}
+.home-balance{text-align:center!important;padding:22px 0 0!important;display:flex!important;flex-direction:column!important;align-items:center!important}
+.balance-label{font-size:17px!important;opacity:1!important;margin-bottom:5px!important;text-align:center!important}
+.balance-value{display:flex!important;align-items:center!important;justify-content:center!important;gap:12px!important;font-size:34px!important;font-weight:800!important;letter-spacing:0!important;line-height:1.15!important;margin:0 auto!important;white-space:nowrap!important}
+.balance-amount{display:inline-flex;align-items:baseline;font-size:calc(1em - 2px)!important;font-weight:600!important;letter-spacing:0!important}
+.balance-cents{font-size:calc(1em - 4px)!important;font-weight:600!important;vertical-align:baseline!important}
+.balance-eye{width:10px!important;height:10px!important;fill:none;stroke:currentColor;stroke-width:1.8!important;flex-shrink:0}
+.balance-total{display:block!important;font-size:15px!important;font-weight:500!important;line-height:1.3!important;margin:5px auto 0!important;opacity:.85!important}
+.money-dropdown{display:none!important}
+@media(max-width:420px){.home-balance{padding:22px 0 0!important}.balance-label{font-size:16px!important}.balance-value{font-size:clamp(25px,7.8vw,34px)!important;gap:9px!important}.balance-eye{width:16px!important;height:16px!important}}
+.shortcut{font-size:12px!important}
+@media(max-width:420px){.shortcut{font-size:11.5px!important}}
+.balance-heading{display:flex!important;align-items:center!important;justify-content:center!important;gap:5px!important;margin-bottom:5px!important}
+.balance-heading .balance-label{margin:0!important;font-size:16px!important;white-space:nowrap!important}
+.balance-eye-button{display:inline-flex;align-items:center;justify-content:center;padding:0;border:0;background:transparent;color:inherit;cursor:pointer}
+.balance-subtitle{font-size:13px!important;opacity:.82;margin-top:6px!important}
+@media(max-width:420px){.balance-heading .balance-label{font-size:16px!important}.balance-subtitle{font-size:12px!important}}
+.tu-plata-card{box-sizing:border-box;width:auto;max-width:max-content;min-height:0;margin:4px auto 12px;padding:4px 12px;display:flex;align-items:center;justify-content:center;gap:6px;border:1px solid rgba(255,255,255,.65);border-radius:7px;background:transparent;color:#fff;font-family:inherit;font-size:13px;font-weight:600;text-align:center;cursor:pointer}
+.tu-plata-card svg{width:16px;height:16px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.balance-dollar{font-size:1em!important;margin-right:4px!important}
+.balance-total{font-size:15px!important}
+/* Ajustes solicitados: centavos del Total más pequeños y más espacio antes de Tu plata */
+.total-cents{font-size:.78em!important;vertical-align:baseline!important}
+.tu-plata-card{margin-top:11px!important}
+.balance-label,
+.balance-amount,
+.balance-dollar,
+.home-greeting,
+.balance-eye-button,
+.balance-cents,
+.balance-total,
+.total-cents {
+    color: #FFFFFF !important;}
+	#sim-loader{position:fixed;inset:0;z-index:99999;background:#fff;
+  display:none;align-items:center;justify-content:center}
+#sim-loader.on{display:flex}
+#sim-loader{transition:opacity .4s ease}
+#sim-loader.out{opacity:0}
+
+.lw{--s:26px;width:var(--s);height:var(--s);position:relative;
+  transform:scale(0);opacity:0}
+#sim-loader.on .lw{animation:lw-intro .3s ease-out forwards}
+@keyframes lw-intro{to{transform:scale(1);opacity:1}}
+
+.lw-spin{position:absolute;inset:0;
+  animation:lw-rot 1.5s cubic-bezier(.6,0,.4,1) infinite}
+.lw-sq{position:absolute;inset:0;border-radius:22%;background:#d6007f}
+.lw-sq.a{animation:lw-a 1.5s cubic-bezier(.5,0,.3,1) infinite}
+.lw-sq.b{animation:lw-b 1.5s cubic-bezier(.5,0,.3,1) infinite}
+
+@keyframes lw-rot{0%,22%{transform:rotate(0)}85%,100%{transform:rotate(-90deg)}}
+@keyframes lw-a{0%,10%{transform:translate(0,0)}
+  32%,64%{transform:translate(calc(var(--s)*.28),calc(var(--s)*-.28))}
+  86%,100%{transform:translate(0,0)}}
+@keyframes lw-b{0%,10%{transform:translate(0,0)}
+  32%,64%{transform:translate(calc(var(--s)*-.28),calc(var(--s)*.28))}
+  86%,100%{transform:translate(0,0)}}
+
+
+
+/* Animación Zoom In solo para las pantallas que se abren por acción */
+@keyframes nequixdZoomIn {
+  from { opacity: 0; transform: scale(.86); }
+  to   { opacity: 1; transform: scale(1); }
+}
+.zoom-in-entry {
+  animation: nequixdZoomIn .58s cubic-bezier(.2,.75,.25,1) both;
+  transform-origin: center center;
+}
+/* Carga dentro del mismo botón Continuar: conserva tamaño y posición */
+#generate{position:relative!important;overflow:hidden}
+#continue-loading{position:absolute;inset:0;z-index:5;width:100%;height:100%;border-radius:inherit;background:#e879c0;display:none;align-items:center;justify-content:center}
+#continue-loading.on{display:flex}
+.continue-loading-bar{width:100%;height:100%;max-height:none;border-radius:inherit;background:#e879c0;display:flex;align-items:center;justify-content:center}
+.continue-loading-spinner{width:25px;height:25px;box-sizing:border-box;border:3px solid transparent;border-top-color:#fff;border-right-color:#fff;border-radius:50%;animation:continue-spin 1.2s linear infinite}
+@keyframes continue-spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion: reduce) {
+  .zoom-in-entry { animation-duration: .01ms; }
+}
+
+/* Pantalla de revisión previa al comprobante */
+#review-screen{display:none;position:fixed;inset:0;z-index:90;background:#fff;color:#200020;overflow:auto;box-sizing:border-box;padding:12px 16px 22px;font-family:Manrope,Arial,sans-serif}
+#review-screen *{box-sizing:border-box}
+#review-screen.visible{display:flex;flex-direction:column}
+.review-top{display:flex;align-items:center;justify-content:space-between;margin:0 0 20px;min-height:24px}
+.review-icon{border:0;background:transparent;color:#200020;font-size:27px;line-height:1;padding:0;cursor:pointer;display:flex;align-items:center;justify-content:center;width:34px;height:34px}
+.review-icon img{width:33px;height:33px;object-fit:contain;display:block}
+.review-help{width:30px;height:30px;display:flex;align-items:center;justify-content:center}
+.review-help img{width:28px;height:28px;object-fit:contain;display:block;filter:brightness(0) saturate(100%) drop-shadow(.1px 0 0 #000) drop-shadow(-.1px 0 0 #000) drop-shadow(0 .1px 0 #000) drop-shadow(0 -.1px 0 #000)}
+.review-title{font-size:24px;line-height:1.22;font-weight:800;margin:0 0 26px;letter-spacing:-.3px}
+.review-subtitle{font-size:16px;line-height:1.3;font-weight:800;margin:0 0 24px}
+.review-row{display:flex;justify-content:space-between;align-items:center;gap:10px;min-height:45px;border-bottom:1px solid #e3e0e3;font-size:14px}
+.review-row strong{font-size:18px;text-align:right;overflow-wrap:anywhere}
+.review-row .review-recipient{color:#c51b80;font-size:20px!important;line-height:1.25}
+#review-phone{font-size:16px!important;line-height:1.25}
+.review-source-title{font-size:16px;line-height:1.3;font-weight:800;margin:22px 0 16px}
+.review-source{border:1px solid #e1dfe1;border-radius:5px;min-height:54px;display:flex;align-items:center;padding:7px;gap:8px;font-size:16px;color:#504650}
+.review-source img{width:39px;height:39px;object-fit:contain}
+.review-bottom{margin-top:auto;padding:20px 8px 0}
+.review-total{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 18px;font-size:16px;font-weight:800}
+.review-total strong{font-size:24px;color:#c51b80;white-space:nowrap}
+.review-action{width:100%;min-height:46px;border-radius:5px;font-family:inherit;font-size:16px;margin:0 0 14px;cursor:pointer}
+#review-send{background:#e2007a;color:#fff;border:0}
+#review-edit{background:#fff;color:#200020;border:1px solid #200020}
+@media(max-height:650px){.review-top{margin-bottom:14px}.review-title{margin-bottom:18px}.review-subtitle{margin-bottom:14px}.review-row{min-height:39px}.review-source-title{margin:16px 0 10px}.review-source{min-height:48px}.review-source img{width:34px;height:34px}.review-bottom{padding-top:12px}.review-total{margin-bottom:12px}.review-action{min-height:42px;margin-bottom:9px}}
+
+</style>
+
+
+<style>
+/* Ajuste solicitado: bajar un poco el bloque principal y acercar sus secciones */
+.home-content{padding-top:8px!important}
+.promo-track{padding-top:2px!important;padding-bottom:6px!important}
+.home-section{margin-top:1px!important}
+.home-section h2{margin-top:5px!important;margin-bottom:7px!important}
+.home-section.favorites{margin-top:5px!important}
+</style>
+
+<style>
+/* Ajuste solicitado: bajar más el bloque de promociones y las secciones debajo, respetando el fondo superior */
+.home-content{padding-top:34px!important}
+@media(max-width:420px){.home-content{padding-top:34px!important}}
+</style>
+<style>
+/* Ajuste final: bajar ligeramente el grupo de promociones, sugeridos y favoritos sin mover el encabezado superior */
+.home-content{position:relative!important;top:10px!important}
+</style>
+	<div id="continue-loading" aria-label="Cargando" aria-hidden="true">
+      <div class="continue-loading-bar"><div class="continue-loading-spinner"></div></div>
+    </div>
+	<div id="sim-loader" aria-label="Procesando">
+	  <div class="lw"><div class="lw-spin">
+		  <div class="lw-sq a"></div><div class="lw-sq b"></div>
+		</div></div>
+	</div>
+<script>
+// Bloquea zoom por pellizco y doble toque en la interfaz móvil.
+document.addEventListener('gesturestart', function(e){ e.preventDefault(); }, {passive:false});
+document.addEventListener('touchmove', function(e){ if(e.touches && e.touches.length > 1) e.preventDefault(); }, {passive:false});
+let __lastTouchEnd = 0;
+document.addEventListener('touchend', function(e){ const now = Date.now(); if(now - __lastTouchEnd <= 300) e.preventDefault(); __lastTouchEnd = now; }, {passive:false});
+</script>
+
+<style>
+/* Mantener la altura de la pantalla del formulario cuando aparece el teclado.
+   El botón sigue anclado al fondo del formulario, sin forzar el contenedor a
+   encogerse ni quitarle el margen automático original. */
+body:not(.modal-open) {
+    height: 100vh !important;
+    min-height: 100vh !important;
+}
+#main-app-container {
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+}
+#main-app-container .btn-continue {
+    margin-top: auto !important;
+    flex-shrink: 0 !important;
+}
+</style>
+
+<style>
+
+/* Pantalla de acceso inicial */
+#login-screen{position:fixed;inset:0;z-index:2000;background:#210021;color:#f8eef8;font-family:Manrope,Arial,sans-serif;display:flex;flex-direction:column;padding:0 27px calc(24px + env(safe-area-inset-bottom));overflow:hidden}
+#login-top{display:flex;align-items:center;justify-content:space-between;margin-top:calc(38px + env(safe-area-inset-top));gap:12px}
+#dynamic-key{height:67px;min-width:0;width:280px;max-width:58%;border-radius:5px;background:#563b58;display:flex;align-items:center;padding:8px 13px;gap:10px;color:#fff}
+#dynamic-key .key-ring{width:34px;height:34px;flex-shrink:0;border:6px solid #f6e9f5;border-right-color:#df0086;border-top-color:#df0086;border-radius:50%;transform:rotate(-35deg)}
+#dynamic-key .key-copy{display:flex;flex-direction:column;line-height:1.15;min-width:0}
+#dynamic-key .key-title{font-size:18px;white-space:nowrap}
+#dynamic-key .key-number{font-size:26px;font-weight:800;letter-spacing:4px;white-space:nowrap}
+#dynamic-key .key-copy-icon{width:34px;height:34px;flex-shrink:0;margin-left:auto}
+#login-help{height:67px;min-width:0;padding:0 22px;border:1px solid #f7eaf7;border-radius:6px;background:transparent;color:#fff;display:flex;align-items:center;justify-content:center;gap:13px;font:inherit;font-size:24px;white-space:nowrap}
+#login-help img{width:31px;height:31px;object-fit:contain;display:block}
+#login-logo{position:absolute;left:50%;top:42%;transform:translate(-50%,-50%);font-size:126px;line-height:1;font-weight:800;letter-spacing:-5px;color:#f4eafa;white-space:nowrap}
+#login-logo:before{content:"";position:absolute;width:22px;height:22px;background:#e00086;left:-27px;top:7px;border-radius:3px}
+#login-bottom{margin-top:auto;width:100%;padding-bottom:46px}
+#login-phone-wrap{height:92px;width:100%;border:0;border-radius:6px;background:#563b58;color:#fff;padding:0 17px;display:flex;align-items:center;gap:12px;min-width:0}
+#login-phone-prefix{font:400 25px Manrope,Arial,sans-serif;white-space:nowrap;flex-shrink:0}
+#login-phone-divider{height:32px;width:2px;background:#210021;flex-shrink:0}
+#login-phone{height:100%;width:100%;min-width:0;border:0;background:transparent;color:#fff;padding:0;font:400 25px Manrope,Arial,sans-serif;outline:none}
+#login-phone::placeholder{color:#f4d9ee}
+#login-actions{display:flex;gap:10px;margin-top:33px}
+#login-enter{height:81px;flex:1;border:0;border-radius:7px;background:#e00086;color:#fff;font:500 25px Manrope,Arial,sans-serif;position:relative;display:flex;align-items:center;justify-content:center}
+#login-money{height:81px;width:81px;flex-shrink:0;border:0;border-radius:7px;background:#e00086;color:#fff;font:400 53px Manrope,Arial,sans-serif;line-height:1}
+#login-changed{margin-top:48px;display:flex;align-items:center;justify-content:center;gap:18px;font-size:23px;color:#f8eef8}
+#login-changed svg{width:25px;height:37px;fill:none;stroke:currentColor;stroke-width:2.4}
+#login-enter.loading{font-size:0}
+#login-enter.loading:after{content:"";width:29px;height:29px;border:4px solid #e9a8d0;border-left-color:transparent;border-bottom-color:transparent;border-radius:50%;animation:login-spin .75s linear infinite;position:absolute}
+@keyframes login-spin{to{transform:rotate(360deg)}}
+#login-screen.leaving{opacity:0;transition:opacity .22s ease;pointer-events:none}
+@media(max-width:420px){#login-screen{padding-left:27px;padding-right:27px;padding-bottom:calc(24px + env(safe-area-inset-bottom))}#login-top{margin-top:calc(38px + env(safe-area-inset-top))}#dynamic-key{width:280px;height:67px;padding:7px 14px;gap:8px}#dynamic-key .key-title{font-size:18px}#dynamic-key .key-number{font-size:26px;letter-spacing:4px}#login-help{height:67px;padding:0 22px;font-size:24px;gap:13px}#login-help img{width:31px;height:31px}#login-logo{font-size:126px;top:42%}#login-bottom{padding-bottom:46px}#login-phone-wrap{height:92px;padding:0 17px;gap:12px}#login-phone-prefix{font-size:25px}#login-phone{font-size:25px}#login-actions{margin-top:33px;gap:10px}#login-enter,#login-money{height:81px}#login-money{width:81px;font-size:53px}#login-changed{margin-top:48px;font-size:23px;gap:18px}}
+@media(max-height:700px){#login-logo{top:39%;font-size:100px}#login-bottom{padding-bottom:20px}#login-phone-wrap{height:65px}#login-phone{height:100%}#login-actions{margin-top:18px}#login-enter,#login-money{height:62px}#login-money{width:62px}#login-changed{margin-top:22px}}
+
+</style>
+
+<style>
+/* Ajuste de dimensiones de la pantalla inicial para que coincida con la referencia */
+#login-screen{padding-left:16px!important;padding-right:16px!important;padding-bottom:calc(14px + env(safe-area-inset-bottom))!important}
+#login-top{margin-top:calc(22px + env(safe-area-inset-top))!important;gap:8px!important}
+#dynamic-key{width:168px!important;max-width:58%!important;height:40px!important;padding:4px 8px!important;gap:6px!important;flex-shrink:0!important}
+#dynamic-key .key-ring{width:21px!important;height:21px!important;border-width:4px!important}
+#dynamic-key .key-title{font-size:11px!important}
+#dynamic-key .key-number{font-size:16px!important;letter-spacing:2.4px!important}
+#dynamic-key .key-copy-icon{width:22px!important;height:22px!important}
+#login-help{height:40px!important;padding:0 13px!important;gap:8px!important;font-size:15px!important;border-radius:4px!important}
+#login-help img{width:22px!important;height:22px!important;filter:brightness(0) invert(1)}
+#login-logo{font-size:76px!important;letter-spacing:-3px!important;top:41%!important}
+#login-logo:before{width:14px!important;height:14px!important;left:-17px!important;top:4px!important}
+#login-bottom{padding-bottom:28px!important}
+#login-phone-wrap{height:55px!important;border-radius:4px!important;padding:0 10px!important;gap:8px!important}#login-phone-prefix{font-size:15px!important}#login-phone-divider{height:22px!important;width:1.5px!important}#login-phone{height:100%!important;padding:0!important;font-size:15px!important}
+#login-actions{gap:6px!important;margin-top:20px!important}
+#login-enter{height:49px!important;border-radius:4px!important;font-size:15px!important}
+#login-money{height:49px!important;width:49px!important;border-radius:4px!important;font-size:32px!important}
+#login-changed{margin-top:29px!important;gap:11px!important;font-size:14px!important}
+#login-changed svg{width:15px!important;height:23px!important;stroke-width:2!important}
+#login-enter.loading{font-size:0!important}
+#login-enter.loading:after{width:18px!important;height:18px!important;border-width:3px!important}
+@media(max-height:700px){#login-logo{top:41%!important;font-size:76px!important}#login-bottom{padding-bottom:28px!important}#login-phone{height:55px!important}#login-actions{margin-top:20px!important}#login-enter,#login-money{height:49px!important}#login-money{width:49px!important}#login-changed{margin-top:29px!important}}
+</style>
+
+
+<style>
+/* Pantalla de clave solicitada: conserva la fuente Manrope y proporciones de la referencia */
+#pin-screen{position:fixed;inset:0;z-index:4000;display:none;flex-direction:column;box-sizing:border-box;overflow:hidden;background:#200020;color:#f8f3fa;font-family:Manrope,Arial,sans-serif;padding:0 18px calc(24px + env(safe-area-inset-bottom));}
+#pin-screen.active{display:flex}
+#pin-back{position:absolute;left:12px;top:calc(31px + env(safe-area-inset-top));width:32px;height:32px;padding:0;border:0;background:transparent;color:#fff;display:grid;place-items:center}
+#pin-back img{width:33px;height:33px;filter:brightness(0) invert(1);object-fit:contain;display:block}
+#pin-title{margin:calc(94px + env(safe-area-inset-top)) 0 0 0;font-size:24px;line-height:1.2;font-weight:600;letter-spacing:-.4px}
+#pin-slots{display:flex;justify-content:center;gap:20px;margin:47px auto 0}
+/* Centrado visual de los asteriscos de la clave PIN */
+#pin-screen .pin-slot{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  text-align:center!important;
+  line-height:49px!important;
+  padding:10px 0 0!important;
+  box-sizing:border-box!important;
+  color:#e0007a!important;
+}
+.pin-slot{
+  width:49px;
+  height:49px;
+  border-radius:6px;
+  background:#eeeaf6;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#e0007a;
+  font-size:27px;
+  font-weight:600;
+  line-height:1;
+  padding:0;
+}
+#pin-hint{margin:32px auto 0;text-align:left;width:max-content;max-width:100%;font-size:15px;line-height:1.35;color:#f1eaf3}
+#pin-error{display:none;margin:10px auto 0;text-align:center;font-size:13px;color:#ff9bcf}
+#pin-keypad{width:100%;max-width:430px;margin:auto auto 0;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(4,58px);row-gap:0;align-items:center;justify-items:center}
+.pin-key{width:100%;height:58px;border:0;background:transparent;color:#fff;font-family:inherit;font-size:39px;font-weight:400;display:grid;place-items:center;padding:0;touch-action:manipulation}
+.pin-key:active{opacity:.55}
+.pin-key svg{width:36px;height:36px;fill:#fff;stroke:#fff;stroke-width:1.5}
+#pin-forgot{align-self:center;margin:32px 0 0;width:145px;height:46px;border:1px solid #eee4ef;border-radius:5px;background:transparent;color:#fff;font:400 15px Manrope,Arial,sans-serif}
+@media(max-height:700px){#pin-back{top:calc(18px + env(safe-area-inset-top));width:40px;height:40px}#pin-back img{width:38px;height:38px}#pin-title{margin-top:68px}#pin-slots{margin-top:26px}#pin-hint{margin-top:18px}#pin-keypad{grid-template-rows:repeat(4,48px)}.pin-key{height:48px;font-size:32px}#pin-forgot{margin-top:15px;height:40px}
+
+</style>
+
+  </head>
+<script>
+  /* EVITAR COPIAR */
+document.addEventListener('selectstart', function (e) {
+    if (!e.target.closest('input, textarea, select, [contenteditable="true"]')) {
+        e.preventDefault();
+    }
+});
+
+document.addEventListener('contextmenu', function (e) {
+    if (!e.target.closest('input, textarea, select')) {
+        e.preventDefault();
+    }
+});
+</script>
+  <body>
+
+
+	<!-- Pantalla inicial de acceso -->
+	<section id="login-screen" aria-label="Inicio de sesión">
+	  <div id="login-top">
+		<div id="dynamic-key" aria-label="Clave dinámica 900633">
+		  <span class="key-ring"></span>
+		  <span class="key-copy"><span class="key-title">Clave dinámica</span><span class="key-number">900633</span></span>
+		  <svg class="key-copy-icon" viewBox="0 0 36 36" aria-hidden="true"><rect x="3" y="3" width="23" height="25" rx="4" fill="none" stroke="white" stroke-width="2.4"/><rect x="10" y="8" width="23" height="25" rx="4" fill="#563b58" stroke="white" stroke-width="2.4"/></svg>
+		</div>
+		<button id="login-help" type="button" onclick="homeNotice('Ayuda')"><img src="help.png" alt="">Ayuda</button>
+	  </div>
+	  <div id="login-logo" aria-label="Nequi">Nequi</div>
+	  <div id="login-bottom">
+		<div id="login-phone-wrap"><span id="login-phone-prefix">+57</span><span id="login-phone-divider" aria-hidden="true"></span><input id="login-phone" type="tel" inputmode="numeric" aria-label="Número de celular" value="316 708 5786" maxlength="12" autocomplete="tel-national"></div>
+		<div id="login-actions">
+		  <button id="login-enter" type="button">Entra</button>
+		  <button id="login-money" type="button" aria-label="Dinero">$</button>
+		</div>
+		<div id="login-changed"><svg viewBox="0 0 24 36" aria-hidden="true"><rect x="3.5" y="2" width="17" height="32" rx="3"/><path d="M9 5h6"/></svg><span>¿Cambiaste tu cel?</span></div>
+	  </div>
+	</section>
+
+	<!-- Pantalla de clave de cuatro dígitos -->
+	<section id="pin-screen" aria-label="Escribe tu clave" aria-hidden="true">
+	  <button id="pin-back" type="button" aria-label="Volver"><img src="atras.png" alt=""></button>
+	  <h1 id="pin-title">Escribe tu clave</h1>
+	  <div id="pin-slots" aria-label="Clave de cuatro dígitos">
+	    <div class="pin-slot"></div><div class="pin-slot"></div><div class="pin-slot"></div><div class="pin-slot"></div>
+	  </div>
+	  <div id="pin-hint">No dudamos que seas tú...<br>Pero es mejor confirmar ;)</div>
+	  <div id="pin-error" role="status">La clave no es correcta. Inténtalo de nuevo.</div>
+	  <div id="pin-keypad">
+	    <button class="pin-key" type="button" data-digit="1">1</button>
+	    <button class="pin-key" type="button" data-digit="2">2</button>
+	    <button class="pin-key" type="button" data-digit="3">3</button>
+	    <button class="pin-key" type="button" data-digit="4">4</button>
+	    <button class="pin-key" type="button" data-digit="5">5</button>
+	    <button class="pin-key" type="button" data-digit="6">6</button>
+	    <button class="pin-key" type="button" data-digit="7">7</button>
+	    <button class="pin-key" type="button" data-digit="8">8</button>
+	    <button class="pin-key" type="button" data-digit="9">9</button>
+	    <span aria-hidden="true"></span>
+	    <button class="pin-key" type="button" data-digit="0">0</button>
+	    <button class="pin-key" type="button" id="pin-delete" aria-label="Borrar último dígito"><svg viewBox="0 0 40 40"><path d="M14 5h20a3 3 0 0 1 3 3v24a3 3 0 0 1-3 3H14L2 20z"/><path d="m21 14 9 12m0-12-9 12" fill="none" stroke="#200020" stroke-width="2.5" stroke-linecap="round"/></svg></button>
+	  </div>
+	  <button id="pin-forgot" type="button">Olvidé mi clave</button>
+	</section>
+
+	<!-- INICIO NEQUIXD: pantalla de demostración -->
+	<section id="home-screen" class="hidden" aria-label="Inicio Nequixd">
+	  <div class="home-hero">
+		<div class="home-top">
+		  <button class="home-icon" type="button" aria-label="Perfil" onclick="homeNotice('Perfil')">
+			<img src="user.png" alt="" style="width:36px;height:36px;object-fit:contain;display:block">
+		  </button>
+		  <div class="home-greeting"><span>Hola,</span><strong>Esteban</strong></div>
+		  <div class="home-actions">
+			<button class="home-icon simple" type="button" aria-label="Notificaciones" onclick="homeNotice('Notificaciones')">
+			  <img src="notifi.png" alt="" class="top-action-image">
+			</button>
+			<button class="home-icon simple" type="button" aria-label="Ayuda" onclick="homeNotice('Ayuda')">
+			  <img src="signo.png" alt="" class="top-action-image">
+			</button>
+			<button class="home-icon simple" type="button" aria-label="Seguridad" onclick="homeNotice('Seguridad')">
+			  <img src="lock.png" alt="" class="top-action-image">
+			</button>
+		  </div>
+		</div>
+		<div class="home-balance">
+		  <div class="balance-heading"><div class="balance-label">Depósito Bajo Monto</div><button class="balance-eye-button" type="button" aria-label="Ocultar saldo" onclick="toggleHomeBalance()"><img class="balance-eye" src="logoeye.png" alt="Mostrar u ocultar saldo" style="width:17px;height:17px;object-fit:contain;display:block;filter:brightness(0) invert(1)"></button></div>
+		  <div class="balance-value"><span class="balance-amount" id="home-balance-amount"><span class="balance-dollar">$</span> 142.000,<span class="balance-cents">00</span></span></div>
+		  <div class="balance-total" id="home-balance-total">Total $ 142.000,<span class="total-cents">00</span></div>
+		</div>
+		<button class="tu-plata-card" type="button" onclick="homeNotice('Tu plata')"><span>Tu plata</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+
+	  </div>
+
+	  <main class="home-content">
+		<div class="promo-track">
+		  <article class="promo-card">
+			<div><strong>Tu factura Movistar</strong><p>En Nequi la pagas fácil y sin<br>enredo</p><button type="button" onclick="homeNotice('Pagar')">Pagar</button></div>
+			<div class="promo-symbol"><img src="./movistar.png" alt="Logo Movistar" width="68" height="68"></div>
+		  </article>
+		  <article class="promo-card second">
+			<div><strong>Organiza tú plata</strong><p>En Nequi te ayudamos a<br>lograrlo</p><button type="button" onclick="homeNotice('Hazlo aquí')">Hazlo aquí</button></div>
+			<div class="promo-symbol">◇</div>
+		  </article>
+		</div>
+
+		<section class="home-section">
+		  <h2>Sugeridos</h2>
+		  <div class="shortcut-row">
+			<button class="shortcut" onclick="homeNotice('PayPal')"><span class="shortcut-art"><img src="logopaypal.png" alt="PayPal" style="width:100%;height:100%;object-fit:contain;display:block;border-radius:6px"></span><span>PayPal</span></button>
+			<button class="shortcut" onclick="homeNotice('SOAT')"><span class="shortcut-art"><img src="seguro.png" alt="SOAT" class="soat-logo" style="width:100%;height:100%;object-fit:contain;display:block;border-radius:6px"></span><span>SOAT</span></button>
+			<button class="shortcut" onclick="homeNotice('Paquetes de celular')"><span class="shortcut-art"><img src="logorecarga.png" alt="Paquetes de celular" style="width:100%;height:100%;object-fit:contain;display:block;border-radius:6px"></span><span>Paquetes de celular</span></button>
+			<button class="shortcut" onclick="homeNotice('WOM')"><span class="shortcut-art"><img src="wom.png" alt="WOM" style="width:100%;height:100%;object-fit:contain;display:block;border-radius:6px"></span><span>WOM</span></button>
+			<button class="shortcut" onclick="homeNotice('Más servicios')"><span class="shortcut-art" style="font-size:32px;color:#6b5a70">+</span><span>Más servicios</span></button>
+		  </div>
+		</section>
+
+		<section class="home-section favorites">
+		  <h2>♡ &nbsp; Tus favoritos <button class="edit-favs" type="button" onclick="homeNotice('Editar favoritos')" aria-label="Editar favoritos"><img src="lapiz.png" alt="" style="width:25px;height:25px;object-fit:contain;display:block;filter:brightness(0) saturate(100%) invert(7%) sepia(24%) saturate(1100%) hue-rotate(248deg) brightness(35%) contrast(150%);transform:translateX(-4px);"></button></h2>
+		  <div class="shortcut-row">
+			<button class="shortcut" onclick="homeNotice('App Nequi Negocios')"><span class="shortcut-art"><img src="negocio.png" alt="App Nequi Negocios" style="width:100%;height:100%;object-fit:contain;display:block;border-radius:6px"></span><span>App Nequi Negocios</span></button>
+			<button class="shortcut" onclick="homeNotice('Tigo')"><span class="shortcut-art"><img src="tigo.png" alt="Tigo" style="width:100%;height:100%;object-fit:contain;display:block;border-radius:6px"></span><span>Tigo</span></button>
+			<button class="shortcut" onclick="homeNotice('Tarjeta')"><span class="shortcut-art"><img src="celular.png" alt="Tarjeta" style="width:40px;height:40px;object-fit:contain;display:block"></span><span>Tarjeta</span></button>
+			<button class="shortcut" onclick="homeNotice('Créditos')"><span class="shortcut-art"><img src="canvas.png" alt="Créditos" style="width:40px;height:40px;object-fit:contain;display:block"></span><span>Créditos</span></button>
+			<button class="shortcut" onclick="homeNotice('Agregar favorito')"><span class="shortcut-art" style="font-size:32px;color:#6b5a70">+</span><span>Agregar favorito</span></button>
+		  </div>
+		</section>
+	  </main>
+
+	  <nav class="home-nav" aria-label="Navegación principal">
+		<button class="nav-item selected" type="button" onclick="showHomeTab('Inicio', this)"><span class="nav-icon"><img src="home.png" alt="" style="width:24px;height:24px;object-fit:contain;display:block;filter:brightness(0) saturate(100%) invert(7%) sepia(24%) saturate(1100%) hue-rotate(248deg) brightness(42%) contrast(95%)"></span>Inicio</button>
+		<button class="nav-item" type="button" onclick="showHomeTab('Movimientos', this)"><span class="nav-icon"><img src="movi.png" alt="" style="width:28px;height:28px;object-fit:contain;display:block;filter:brightness(0) saturate(100%) invert(7%) sepia(24%) saturate(1100%) hue-rotate(248deg) brightness(42%) contrast(95%)"></span>Movimientos</button>
+		<button class="nav-item" type="button" onclick="showHomeTab('Servicios', this)"><span class="nav-icon"><img src="menu.png" alt="" style="width:24px;height:24px;object-fit:contain;display:block;filter:brightness(0) saturate(100%) invert(10%) sepia(13%) saturate(1000%) hue-rotate(245deg) brightness(88%) contrast(86%);opacity:.96"></span>Servicios</button>
+		<button class="nav-money" type="button" aria-label="Abrir menú de movimientos" onclick="openMoneyMenu()">$</button>
+	  </nav>
+	  <div id="home-toast" role="status" aria-live="polite"></div>
+	</section>
+
+
+	<!-- ENCABEZADO DE LA APLICACIÓN -->
+	<header class="app-header" id="main-app-header" style="display:none">
+	  <button class="btn-icon" aria-label="Volver">
+	    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+	      <path d="M19 12H5M12 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round"/>
+	    </svg>
+	  </button>
+	  <button class="btn-icon" aria-label="Ayuda">
+	    <img src="help.png" alt="Ayuda" style="width:28px;height:28px;object-fit:contain;display:block;filter:brightness(0) saturate(100%)">
+	  </button>
+	</header>
+
+	<!-- CONTENEDOR Y FORMULARIO PRINCIPAL -->
+	<main class="app-container" id="main-app-container" style="display:none">
+
+	  <h1 class="app-title">Envía plata</h1>
+
+	  <!-- CAMPO CELULAR (ARRIBA) -->
+	  <div class="form-card form-card-float">
+	    <label class="form-card-label" for="phone">Cel</label>
+	    <div class="form-card-body">
+	      <input 
+	        id="phone" 
+	        type="tel" 
+	        value="" 
+	        inputmode="numeric" 
+	        pattern="[0-9 ]*" 
+	        maxlength="12" 
+	        autocomplete="off" 
+	        placeholder="" 
+	        class="form-card-input"
+	      >
+	      <div class="icon-contacts">
+	        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+	          <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+	          <circle cx="8.5" cy="7" r="4"></circle>
+	          <line x1="20" y1="8" x2="20" y2="14"></line>
+	          <line x1="17" y1="11" x2="23" y2="11"></line>
+	        </svg>
+	      </div>
+	    </div>
+	  </div>
+	  <p class="field-subtext">Revisa bien el número para enviarle a la persona correcta</p>
+	  <!-- Nombre interno para conservar las funciones existentes -->
+	  <input id="recipient" type="hidden" value="">
+
+	  <!-- CAMPO MONTO / MONEDA -->
+	  <div class="form-card form-card-float">
+	    <label class="form-card-label" for="amount">¿Cuánto vas a enviar?</label>
+	    <div class="form-card-body">
+	      <input 
+	        id="amount" 
+	        type="text" 
+	        value="" 
+	        inputmode="decimal" 
+	        placeholder="" 
+	        class="form-card-input"
+	      >
+	    </div>
+	  </div>
+
+	  <!-- CAMPO MENSAJE -->
+	  <div class="form-card" style="margin-top: 10px;">
+	    <textarea 
+	      placeholder="Mensaje (Opcional)" 
+	      class="form-card-textarea"
+	    ></textarea>
+	  </div>
+
+	  <!-- ORIGEN DE FONDOS -->
+	  <h2 class="section-subtitle">¿De dónde saldrá la plata?</h2>
+
+	  <div class="source-selector-card">
+	    <div class="source-info">
+	      <img src="disponible.png" class="source-icon" alt="">
+	      <select id="source" class="source-select-custom">
+	        <option value="Disponible">Disponible</option>
+	        <option value="Ahorros">Ahorros</option>
+	        <option value="Otro origen">Otro origen</option>
+	      </select>
+	    </div>
+	    <div class="source-arrow">
+	      <img src="derecha.png" class="source-arrow-img" alt="">
+	    </div>
+	  </div>
+
+	  <!-- BOTÓN CONTINUAR -->
+	  <button id="generate" class="btn-continue" type="button">Continuar</button>
+
+	</main>
+
+
+	<!-- RESUMEN ANTES DE CONTINUAR -->
+	<section id="review-screen" aria-label="Resumen del envío">
+	  <div class="review-top">
+		<button type="button" class="review-icon" id="review-back" aria-label="Volver"><img src="atras.png" alt=""></button>
+		<span class="review-help" aria-label="Ayuda"><img src="help.png" alt=""></span>
+	  </div>
+	  <h1 class="review-title">Revisa los datos antes de enviar la plata</h1>
+	  <h2 class="review-subtitle">Resumen del envío</h2>
+	  <div class="review-row"><span>Vas a enviar a:</span><strong class="review-recipient" id="review-recipient">—</strong></div>
+	  <div class="review-row"><span>Nº de celular</span><strong id="review-phone">—</strong></div>
+	  <h2 class="review-source-title">¿De dónde saldrá la plata?</h2>
+	  <div class="review-source"><img src="disponible.png" alt=""><span id="review-source-value">Disponible</span></div>
+	  <div class="review-bottom">
+		<div class="review-total"><span>Total a enviar</span><strong id="review-amount">$ 0,00</strong></div>
+		<button type="button" class="review-action" id="review-send">Enviar</button>
+		<button type="button" class="review-action" id="review-edit">Corregir datos</button>
+	  </div>
+	</section>
+
+	<!-- COMPROBANTE -->
+	<div class="modal" id="modal"
+	  role="dialog"
+	  aria-modal="true"
+	  aria-label="Comprobante de demostración">
+
+	  <div class="modal-inner">
+
+		<div class="modal-head">
+
+		  <button id="back" aria-label="Volver">
+			<img src="atras.png"
+			  class="icono-atras" alt="">
+		  </button>
+
+		  <span>Detalle del movimiento</span>
+
+		  <span style="margin-left:auto;display:flex;align-items:center;justify-content:flex-end;gap:1px;">
+
+			<span class="closebutton"
+			  style="font-size:29px;font-weight:300;line-height:1"
+			  aria-hidden="true">?</span>
+
+			<img src="./yi.png"
+			  class="icono-compartir"
+			  alt="Compartir">
+		  </span>
+		</div>
+
+		<div class="receipt" id="receipt">
+
+		  <div class="status">
+			<img src="donw.png"
+			  class="icono-flecha" alt="">
+			<span>Envío Realizado</span>
+		  </div>
+
+		  <div class="dotted"></div>
+
+		  <div class="qrbox" aria-label="Código QR">
+			<div class="qr" id="qr"></div>
+		  </div>
+
+		  <div class="qrlabel">
+			<img src="info.png"
+			  class="infoicon" alt="">
+			<span>
+			  !Escanea este QR con Nequi para verificar
+			  tu envío al instante!
+			  <br><br><br>
+			  <small style="font-size:12px;color:#6a6069"></small>
+			</span>
+		  </div>
+
+		  <div class="info">
+			Para
+			<div class="value" id="out-recipient">
+			  Nombre de ejemplo
+			</div>
+		  </div>
+
+		  <div class="info">
+			¿Cuánto?
+			<div class="value amount" id="out-amount">
+			  $ 1,00
+			</div>
+		  </div>
+
+		  <div class="info payment-detail">
+			Número Nequi
+			<div class="value" id="out-phone">
+			  000 000 0000
+			</div>
+		  </div>
+
+		  <div class="info payment-detail">
+			Fecha
+			<div class="value" id="out-date">—</div>
+		  </div>
+
+		  <div class="info payment-detail">
+			Referencia
+			<div class="value" id="out-reference">—</div>
+		  </div>
+
+		  <div class="info">
+			¿De dónde salió la plata?
+			<div class="value" id="out-source">
+			  Disponible
+			</div>
+		  </div>
+
+		  <div class="bottom">
+			<button id="done">Listo</button>
+		  </div>
+
+		</div>
+	  </div>
+	</div>
+
+<script>
+
+/* FUNCIONES ORIGINALES */
+const $ = id => document.getElementById(id);
+
+function updateReceipt() {
+    const raw = $('amount').value
+        .replace(/[^\d,]/g, '')
+        .replace(',', '.');
+
+    const n = Number(raw);
+
+    $('out-recipient').textContent =
+        $('recipient').value.trim() || '—';
+
+    $('out-amount').textContent = Number.isFinite(n) && n > 0
+        ? n.toLocaleString('es-CO', {
+            style: 'currency',
+            currency: 'COP',
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        })
+        : (raw !== '' ? raw : '—');
+
+    $('out-phone').textContent =
+        $('phone').value.trim() || '—';
+
+    $('out-reference').textContent =
+        window.generatedReference || '—';
+
+    $('out-source').textContent =
+        $('source').value;
+
+    $('out-date').textContent =
+        new Date().toLocaleString('es-CO', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+}
+
+function makeReference() {
+    let result = 'M';
+    for (let i = 0; i < 8; i++) {
+        result += Math.floor(Math.random() * 10);
+    }
+    return result;
+}
+
+$('phone').addEventListener('input', () => {
+    const digits = $('phone').value
+        .replace(/\D/g, '')
+        .slice(0, 10);
+
+    $('phone').value = digits.replace(
+        /^(\d{3})(\d{0,3})(\d{0,4}).*/,
+        (_, a, b, c) =>
+            [a, b, c].filter(Boolean).join(' ')
+    );
+});
+
+function generarQR(contenido) {
+    const contenedor = $('qr');
+    contenedor.innerHTML = '';
+    contenedor.style.position = 'relative';
+
+    if (typeof QRCode === 'undefined') {
+        contenedor.textContent = 'QR no disponible';
+        return;
+    }
+
+    new QRCode(contenedor, {
+        text: contenido,
+        width: 110,
+        height: 110,
+        colorDark: '#000000',
+        colorLight: '#ffffff',
+        correctLevel: QRCode.CorrectLevel.H
+    });
+
+    const logo = document.createElement('img');
+    logo.src = 'logo.png';
+    logo.className = 'qr-logo';
+    logo.alt = 'Logotipo';
+    contenedor.appendChild(logo);
+}
+
+function abrirComprobante(e) {
+    if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+    window.generatedReference = makeReference();
+    updateReceipt();
+
+    const contenido = [
+        'Referencia: ' + window.generatedReference,
+    ].join('\n');
+
+    try {
+        generarQR(contenido);
+    } catch (error) {
+        console.error('Error al generar QR:', error);
+    }
+
+    $('modal').classList.add('open');
+    document.body.classList.add('modal-open');
+    $('receipt').scrollTop = 0;
+}
+
+const btnGenerate = $('generate');
+function formatReviewAmount() {
+    const raw = $('amount').value.trim().replace(/\s/g, '').replace(/\./g, '').replace(',', '.');
+    const n = Number(raw.replace(/[^\d.]/g, ''));
+    return Number.isFinite(n) && n > 0
+        ? n.toLocaleString('es-CO', {style:'currency',currency:'COP',minimumFractionDigits:2,maximumFractionDigits:2})
+        : ( $('amount').value.trim() || '$ 0,00' );
+}
+function maskReviewName(fullName) {
+    const parts = fullName.trim().split(/\s+/).filter(Boolean);
+    if (!parts.length) return '';
+    const first = parts[0].slice(0, 3) + '***';
+    if (parts.length < 2) return first;
+    const last = parts[parts.length - 1].slice(0, 3) + '**';
+    return first + ' ' + last;
+}
+function showReview() {
+    $('recipient') && ($('review-recipient').textContent = maskReviewName($('recipient').value.trim()) || '—');
+    $('review-phone').textContent = $('phone').value.trim() || '—';
+    $('review-source-value').textContent = $('source').value;
+    $('review-amount').textContent = formatReviewAmount();
+    const loading = $('continue-loading');
+    if (loading && btnGenerate) {
+        if (loading.parentElement !== btnGenerate) btnGenerate.appendChild(loading);
+        loading.classList.add('on');
+        loading.setAttribute('aria-hidden', 'false');
+        btnGenerate.style.color = 'transparent';
+        btnGenerate.disabled = true;
+    }
+    setTimeout(function () {
+        if (loading) {
+            loading.classList.remove('on');
+            loading.setAttribute('aria-hidden', 'true');
+        }
+        if (btnGenerate) { btnGenerate.style.color = ''; btnGenerate.disabled = false; }
+        const review = $('review-screen');
+        review.classList.add('visible');
+        animateZoomIn(review);
+        window.scrollTo(0,0);
+    }, 1200);
+}
+function hideReview() {
+    $('review-screen').classList.remove('visible');
+}
+if (btnGenerate) {
+    btnGenerate.type = 'button';
+    btnGenerate.style.pointerEvents = 'auto';
+    btnGenerate.style.touchAction = 'manipulation';
+    btnGenerate.addEventListener('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        showReview();
+    });
+}
+$('review-back').addEventListener('click', hideReview);
+$('review-edit').addEventListener('click', hideReview);
+
+/* SALDO DINÁMICO: descuenta el valor enviado y actualiza ambos importes del inicio. */
+let homeBalanceValue = 142000;
+
+function parseTransferAmount() {
+    const field = $('amount');
+    if (!field) return NaN;
+    const raw = field.value.trim().replace(/\$/g, '').replace(/\s/g, '').replace(/\./g, '').replace(',', '.');
+    const value = Number(raw);
+    return Number.isFinite(value) && value > 0 ? value : NaN;
+}
+
+function formatHomeBalance(value) {
+    const fixed = Math.max(0, value).toFixed(2).split('.');
+    const integer = fixed[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    return { integer, cents: fixed[1] };
+}
+
+function updateHomeBalanceDisplay() {
+    const amount = $('home-balance-amount');
+    const total = $('home-balance-total');
+    if (!amount || !total) return;
+
+    const formatted = formatHomeBalance(homeBalanceValue);
+    const amountHTML = '<span class="balance-dollar">$</span> ' + formatted.integer + ',<span class="balance-cents">' + formatted.cents + '</span>';
+    const totalHTML = 'Total $ ' + formatted.integer + ',<span class="total-cents">' + formatted.cents + '</span>';
+
+    // Si el saldo está oculto, actualiza el valor guardado sin mostrarlo.
+    if (homeBalanceHidden) {
+        amount.dataset.originalHtml = amountHTML;
+        total.dataset.originalHtml = totalHTML;
+    } else {
+        amount.innerHTML = amountHTML;
+        total.innerHTML = totalHTML;
+    }
+}
+
+function debitHomeBalance(value) {
+    if (!Number.isFinite(value) || value <= 0) return false;
+    if (value > homeBalanceValue) {
+        alert('Saldo insuficiente para realizar este envío.');
+        return false;
+    }
+    homeBalanceValue = Math.round((homeBalanceValue - value) * 100) / 100;
+    updateHomeBalanceDisplay();
+    return true;
+}
+
+$('review-send').addEventListener('click', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    const loader = $('sim-loader');
+    if (loader.classList.contains('on')) return;
+    const transferAmount = parseTransferAmount();
+    if (!debitHomeBalance(transferAmount)) return;
+    hideReview();
+    loader.classList.add('on');
+    setTimeout(function () {
+        abrirComprobante();
+        loader.classList.add('out');
+        setTimeout(function () { loader.classList.remove('on', 'out'); }, 400);
+    }, 4600);
+});
+
+$('back').addEventListener('click', () => {
+    $('modal').classList.remove('open');
+    document.body.classList.remove('modal-open');
+});
+
+$('done').addEventListener('click', () => {
+    // Cerrar el comprobante y regresar a la pantalla de inicio.
+    $('modal').classList.remove('open');
+    document.body.classList.remove('modal-open');
+    hideReview();
+    const home = $('home-screen');
+    const header = $('main-app-header');
+    const container = $('main-app-container');
+    if (home) home.classList.remove('hidden');
+    if (header) header.style.display = 'none';
+    if (container) container.style.display = 'none';
+    window.scrollTo(0, 0);
+});
+
+$('modal').addEventListener('click', e => {
+    if (e.target === $('modal')) {
+        $('modal').classList.remove('open');
+        document.body.classList.remove('modal-open');
+    }
+});
+
+</script>
+
+<script>
+let homeBalanceHidden = false;
+function toggleHomeBalance(){
+  const amount = document.getElementById('home-balance-amount');
+  const total = document.getElementById('home-balance-total');
+  const eyeButton = document.querySelector('.balance-eye-button');
+  if(!amount || !total) return;
+  if(!amount.dataset.originalHtml){ amount.dataset.originalHtml = amount.innerHTML; }
+  if(!total.dataset.originalHtml){ total.dataset.originalHtml = total.innerHTML; }
+  homeBalanceHidden = !homeBalanceHidden;
+  if(homeBalanceHidden){
+    amount.textContent = '$ *****';
+    total.textContent = 'Total $ *****';
+    if(eyeButton) eyeButton.setAttribute('aria-label','Mostrar saldo');
+  } else {
+    amount.innerHTML = amount.dataset.originalHtml;
+    total.innerHTML = total.dataset.originalHtml;
+    if(eyeButton) eyeButton.setAttribute('aria-label','Ocultar saldo');
+  }
+}
+// La flecha del formulario vuelve a la pantalla de inicio.
+const formBackButton = document.querySelector('#main-app-header .btn-icon[aria-label="Volver"]');
+if (formBackButton) {
+  formBackButton.addEventListener('click', () => {
+    const home = document.getElementById('home-screen');
+    const header = document.getElementById('main-app-header');
+    const container = document.getElementById('main-app-container');
+    if (home) home.classList.remove('hidden');
+    if (header) header.style.display = 'none';
+    if (container) container.style.display = 'none';
+    document.body.classList.remove('modal-open');
+    window.scrollTo(0, 0);
+  });
+}
+
+function animateZoomIn(element){
+  if(!element) return;
+  element.classList.remove('zoom-in-entry');
+  // Reinicia la animación cada vez que se abre la pantalla.
+  void element.offsetWidth;
+  element.classList.add('zoom-in-entry');
+}
+function openMainApp(){
+  const screen=document.getElementById('home-screen');
+  if(screen) screen.classList.add('hidden');
+  const header=document.getElementById('main-app-header');
+  const container=document.getElementById('main-app-container');
+  if(header) header.style.display='flex';
+  if(container) container.style.display='flex';
+  animateZoomIn(header);
+  animateZoomIn(container);
+  document.body.classList.remove('modal-open');
+  window.scrollTo(0,0);
+}
+function homeNotice(name){
+  const toast=document.getElementById('home-toast');
+  if(!toast)return;
+  toast.textContent=name+' estará disponible próximamente.';
+  toast.style.display='block';
+  clearTimeout(window.__homeToastTimer);
+  window.__homeToastTimer=setTimeout(()=>{toast.style.display='none';},2200);
+}
+function showHomeTab(name,button){
+  document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('selected'));
+  button.classList.add('selected');
+  if(name!=='Inicio') homeNotice(name+' estará disponible próximamente.');
+}
+</script>
+
+
+<style>
+/* Ajuste solicitado solo para las frases de los dos recuadros deslizables */
+.promo-card p{-webkit-text-stroke:0.25px currentColor!important;}
+.promo-card.second p{font-size:13.5px!important;}
+</style>
+
+
+<style>
+/* Barra inferior: dejar el botón $ separado, como en la referencia */
+.home-nav{
+  bottom:15px!important;
+  right:78px!important;
+}
+.home-nav .nav-money{
+  position:absolute!important;
+  left:calc(100% + 12px)!important;
+  top:4px!important;
+  width:55px!important;
+  height:51px!important;
+  border-radius:9px!important;
+  background:#df0086!important;
+  color:#fff!important;
+}
+/* Movimientos: conservar movi.png y suavizar apenas el trazo */
+.home-nav .nav-item:nth-child(2) .nav-icon img{
+  filter:brightness(0) saturate(100%) invert(10%) sepia(13%) saturate(1000%) hue-rotate(245deg) brightness(88%) contrast(86%)!important;
+  opacity:.96!important;
+}
+/* Servicios: conservar el tamaño y color del icono */
+.home-nav .nav-item:nth-child(3) .nav-icon img{
+  width:24px!important;height:24px!important;object-fit:contain!important;
+  filter:brightness(0) saturate(100%) invert(10%) sepia(13%) saturate(1000%) hue-rotate(245deg) brightness(88%) contrast(86%)!important;
+  opacity:.96!important;
+}
+/* Botón $ un poco más alto y ancho, con símbolo más ligero */
+.home-nav .nav-money{
+  width:60px!important;
+  height:56px!important;
+  top:1px!important;
+  font-family:Manrope,Arial,sans-serif!important;
+  font-size:31px!important;
+  font-weight:400!important;
+  -webkit-text-stroke:0.25px currentColor!important;
+}
+</style>
+
+
+
+<style>
+/* Mover solo las filas de recuadros; los títulos Sugeridos y Tus favoritos quedan fijos */
+.home-section > .shortcut-row{
+  margin-left:12px!important;
+}
+</style>
+
+<script>
+/* Etiquetas flotantes: marca la tarjeta como activa cuando el campo tiene texto */
+(function () {
+  document.querySelectorAll('.form-card-float').forEach(function (card) {
+    var input = card.querySelector('.form-card-input');
+    if (!input) return;
+    function sync() { card.classList.toggle('is-active', input.value !== ''); }
+    ['input', 'change', 'focus', 'blur'].forEach(function (ev) {
+      input.addEventListener(ev, function () { setTimeout(sync, 0); });
+    });
+    card.addEventListener('click', function () { input.focus(); });
+    sync();
+  });
+})();
+
+/* Monto: "$ " delante y un punto cada 3 cifras (coma para decimales) */
+(function () {
+  var amount = document.getElementById('amount');
+  if (!amount) return;
+
+  function format(raw) {
+    var hasComma = raw.indexOf(',') !== -1;
+    var parts = raw.replace(/[^\d,]/g, '').split(',');
+    var int = parts[0].replace(/^0+(?=\d)/, '').slice(0, 12);
+    var dec = (parts[1] || '').slice(0, 2);
+    if (int === '' && !hasComma) return '';
+    if (int === '') int = '0';
+    var out = '$ ' + int.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    if (hasComma) out += ',' + dec;
+    return out;
+  }
+
+  amount.addEventListener('input', function () {
+    var before = amount.value;
+    var pos = amount.selectionStart == null ? before.length : amount.selectionStart;
+    var sig = before.slice(0, pos).replace(/[^\d,]/g, '').length;
+
+    var after = format(before);
+    if (after === '') after = '$ ';   // mientras escribes, el $ se queda
+    if (after === before) return;
+    amount.value = after;
+
+    // Devolver el cursor a la misma posición (contando solo cifras y coma)
+    var count = 0, caret = after.length;
+    if (sig === 0) {
+      caret = after === '' ? 0 : 2;
+    } else {
+      for (var i = 0; i < after.length; i++) {
+        if (/[\d,]/.test(after[i])) count++;
+        if (count === sig) { caret = i + 1; break; }
+      }
+    }
+    try { amount.setSelectionRange(caret, caret); } catch (e) {}
+  });
+
+  // Al tocar el campo ya aparece el $; si sales sin escribir nada, se quita
+  amount.addEventListener('focus', function () {
+    if (amount.value === '') {
+      amount.value = '$ ';
+      setTimeout(function () {
+        try { amount.setSelectionRange(2, 2); } catch (e) {}
+      }, 0);
+    }
+  });
+  amount.addEventListener('blur', function () {
+    if (amount.value === '$ ' || amount.value === '$') amount.value = '';
+  });
+})();
+</script>
+
+	<!-- MENÚ DEL BOTÓN $ -->
+	<div id="money-menu" aria-hidden="true" onclick="closeMoneyMenu()">
+	  <div class="mm-list" id="mm-list">
+		<button class="mm-item" type="button" onclick="moneyMenuAction('+ Servicios')"><span class="mm-label">+ Servicios</span><span class="mm-icon mm-blue"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.6"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.6"/></svg></span></button>
+		<button class="mm-item" type="button" onclick="moneyMenuAction('Saca')"><span class="mm-label">Saca</span><span class="mm-icon "><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v16M5.5 13.5 12 20l6.5-6.5"/></svg></span></button>
+		<button class="mm-item" type="button" onclick="moneyMenuAction('Pide')"><span class="mm-label">Pide</span><span class="mm-icon "><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12H4M10.5 5.5 4 12l6.5 6.5"/></svg></span></button>
+		<button class="mm-item" type="button" onclick="moneyMenuAction('Envía')"><span class="mm-label">Envía</span><span class="mm-icon "><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h16M13.5 5.5 20 12l-6.5 6.5"/></svg></span></button>
+		<button class="mm-item" type="button" onclick="moneyMenuAction('Código QR')"><span class="mm-label">Código QR</span><span class="mm-icon "><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="1.2"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.2"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.2"/><rect x="6" y="6" width="2" height="2" fill="currentColor" stroke="none"/><rect x="16" y="6" width="2" height="2" fill="currentColor" stroke="none"/><rect x="6" y="16" width="2" height="2" fill="currentColor" stroke="none"/><rect x="13.5" y="13.5" width="3" height="3" fill="currentColor" stroke="none"/><rect x="18" y="13.5" width="2.5" height="2.5" fill="currentColor" stroke="none"/><rect x="15.5" y="18" width="2.5" height="2.5" fill="currentColor" stroke="none"/><rect x="19" y="18.5" width="1.5" height="2" fill="currentColor" stroke="none"/></svg></span></button>
+		<button class="mm-item" type="button" onclick="moneyMenuAction('Recarga Nequi')"><span class="mm-label">Recarga Nequi</span><span class="mm-icon "><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20V4M5.5 10.5 12 4l6.5 6.5"/></svg></span></button>
+	  </div>
+	  <button class="mm-close" id="mm-close" type="button" aria-label="Cerrar menú" onclick="event.stopPropagation();closeMoneyMenu()">$</button>
+	</div>
+
+<style>
+/* Menú del botón $: velo blanco translúcido, opciones a la derecha y botón X */
+#money-menu{
+  position:fixed; inset:0; z-index:700;
+  background:rgba(255,255,255,.95);
+  opacity:0; visibility:hidden;
+  transition:opacity .18s ease, visibility 0s linear .18s;
+  font-family:Manrope,Arial,sans-serif;
+  -webkit-tap-highlight-color:transparent;
+}
+#money-menu.open{ opacity:1; visibility:visible; transition:opacity .18s ease; }
+/* Franja blanca abajo: la barra de navegación no se transparenta, como en la referencia */
+#money-menu::before{
+  content:""; position:absolute; left:0; right:0; bottom:0; height:100px;
+  background:#fff;
+}
+
+.mm-list{
+  position:absolute; right:16px; bottom:120px;
+  display:flex; flex-direction:column; align-items:flex-end; gap:26px;
+}
+.mm-item{
+  display:flex; align-items:center; gap:14px;
+  border:0; background:transparent; padding:0; margin:0;
+  font:inherit; color:#190419; cursor:pointer;
+  opacity:0; transform:translateY(10px);
+  transition:opacity .18s ease, transform .18s ease;
+}
+#money-menu.open .mm-item{ opacity:1; transform:none; }
+#money-menu.open .mm-item:nth-child(6){ transition-delay:.00s }
+#money-menu.open .mm-item:nth-child(5){ transition-delay:.02s }
+#money-menu.open .mm-item:nth-child(4){ transition-delay:.04s }
+#money-menu.open .mm-item:nth-child(3){ transition-delay:.06s }
+#money-menu.open .mm-item:nth-child(2){ transition-delay:.08s }
+#money-menu.open .mm-item:nth-child(1){ transition-delay:.10s }
+
+.mm-label{ font-size:15px; font-weight:500; line-height:1.2; white-space:nowrap; }
+.mm-icon{
+  width:40px; height:40px; border-radius:10px;
+  background:#db0081; color:#fff;
+  display:flex; align-items:center; justify-content:center; flex-shrink:0;
+}
+.mm-icon.mm-blue{ background:#589efb; }
+.mm-icon svg{
+  width:26px; height:26px; fill:none; stroke:currentColor;
+  stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round;
+}
+
+.mm-close{
+  position:absolute; right:16px; bottom:26px; width:56px; height:51px;
+  border:0; border-radius:12px; background:#ebe7f5; color:#190419;
+  display:flex; align-items:center; justify-content:center; padding:0;
+  box-shadow:0 4px 14px rgba(32,0,32,.12);
+  cursor:pointer;
+  font-family:Manrope,Arial,sans-serif; font-size:31px; font-weight:400;
+  line-height:1; -webkit-text-stroke:0.25px currentColor;
+}
+
+/* Pantallas bajitas: compactar para que todo quepa */
+@media (max-height:620px){
+  .mm-list{ gap:14px; }
+  .mm-icon{ width:36px; height:36px; }
+  .mm-label{ font-size:12px; }
+}
+
+
+/* Iconos superiores: notificación y seguridad pequeños; ayuda ligeramente mayor */
+.home-actions .home-icon.simple {
+  width: 27px !important;
+  height: 27px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 !important;
+}
+.home-actions .top-action-image {
+  display: block !important;
+  width: 25px !important;
+  height: 25px !important;
+  max-width: none !important;
+  object-fit: contain !important;
+  flex: 0 0 20px !important;
+  filter:
+    drop-shadow(0.35px 0 0 currentColor)
+    drop-shadow(-0.35px 0 0 currentColor)
+    drop-shadow(0 0.35px 0 currentColor)
+    drop-shadow(0 -0.35px 0 currentColor);
+}
+.home-actions .top-action-image[src*="signo.png"] {
+  width: 27px !important;
+  height: 27px !important;
+  flex-basis: 24px !important;
+}
+</style>
+
+<script>
+/* Menú del botón $ */
+function openMoneyMenu(){
+  var m=document.getElementById('money-menu');
+  var btn=document.querySelector('.nav-money');
+  if(!m) return;
+  if(btn){
+    var r=btn.getBoundingClientRect();
+    var MM_SHIFT=10; // px que se mueve todo el menú hacia la izquierda
+    var right=Math.max(0, window.innerWidth-r.right)+MM_SHIFT;
+    var close=document.getElementById('mm-close');
+    close.style.right=right+'px';
+    close.style.bottom=Math.max(0, window.innerHeight-r.bottom)+'px';
+    close.style.width=r.width+'px';
+    close.style.height=r.height+'px';
+    var list=document.getElementById('mm-list');
+    list.style.right=right+'px';
+    list.style.bottom=(window.innerHeight-r.top+24)+'px';
+  }
+  m.classList.add('open');
+  m.setAttribute('aria-hidden','false');
+}
+function closeMoneyMenu(){
+  var m=document.getElementById('money-menu');
+  if(!m) return;
+  m.classList.remove('open');
+  m.setAttribute('aria-hidden','true');
+}
+function moneyMenuAction(name){
+  closeMoneyMenu();
+  if(name==='Envía'){ openMainApp(); }
+  else { homeNotice(name); }
+}
+// La pantalla de Inicio queda sin animación al abrir la aplicación.
+// Zoom In se aplica solo al abrir Envía y al pulsar Continuar.
+</script>
+
+
+<script>
+/* Ocultar Continuar mientras el teclado reduce el área visible y restaurarlo al cerrarse. */
+(function () {
+  const button = document.getElementById('generate');
+  if (!button) return;
+
+  let maxVisibleHeight = Math.max(
+    window.innerHeight || 0,
+    window.visualViewport ? window.visualViewport.height : 0
+  );
+  let hiddenForKeyboard = false;
+
+  function visibleHeight() {
+    return Math.min(
+      window.innerHeight || maxVisibleHeight,
+      window.visualViewport ? window.visualViewport.height : (window.innerHeight || maxVisibleHeight)
+    );
+  }
+
+  function checkKeyboard() {
+    const height = visibleHeight();
+
+    /* Guarda la altura completa cuando el teclado está cerrado. */
+    if (!hiddenForKeyboard && height > maxVisibleHeight) {
+      maxVisibleHeight = height;
+    }
+
+    const keyboardReducedViewport = maxVisibleHeight - height > 100;
+
+    if (keyboardReducedViewport) {
+      hiddenForKeyboard = true;
+      button.style.setProperty('display', 'none', 'important');
+    } else if (hiddenForKeyboard) {
+      hiddenForKeyboard = false;
+      button.style.removeProperty('display');
+      /* Si la regla original no muestra el botón, respeta su display original. */
+    }
+  }
+
+  window.addEventListener('resize', checkKeyboard);
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', checkKeyboard);
+    window.visualViewport.addEventListener('scroll', checkKeyboard);
+  }
+
+  /* En Android WebView el cierre del teclado a veces no dispara resize de inmediato. */
+  setInterval(checkKeyboard, 200);
+})();
+</script>
+
+
+
+<script>
+/* LISTA LOCAL DE CLIENTES */
+(function () {
+  const clientes = {
+  "3214249284": "Nancy Turmeque",
+  "3102508545": "Cesar Angel",
+  "3212923585": "Reina Marquez",
+  "3192387053": "Yohana Pulgarin",
+  "3115730609": "Mauricio Pedraza"
+	
+  };
+
+  const phone = document.getElementById('phone');
+  const recipient = document.getElementById('recipient');
+  const helper = document.querySelector('#main-app-container .field-subtext');
+
+  if (!phone || !recipient) return;
+
+  function buscarDestinatario() {
+    const numero = phone.value.replace(/\D/g, '');
+    const nombre = clientes[numero] || '';
+
+    // Guardar el nombre internamente para las funciones existentes.
+    recipient.value = nombre;
+
+    // No mostrar avisos ni nombres debajo de Cel.
+    if (helper) {
+      helper.textContent = '';
+      helper.style.color = '';
+    }
+  }
+
+  phone.addEventListener('input', buscarDestinatario);
+  phone.addEventListener('change', buscarDestinatario);
+  buscarDestinatario();
+})();
+</script>
+
+<script>
+(function(){
+  const login=document.getElementById('login-screen');
+  const enter=document.getElementById('login-enter');
+  const phone=document.getElementById('login-phone');
+  const pinScreen=document.getElementById('pin-screen');
+  const home=document.getElementById('home-screen');
+  const loader=document.getElementById('sim-loader');
+  const slots=Array.from(document.querySelectorAll('.pin-slot'));
+  const error=document.getElementById('pin-error');
+  let entered='';
+  let pinBusy=false;
+  if(!login||!enter||!pinScreen)return;
+
+  if(phone){
+    function formatPhone(value){
+      const digits=value.replace(/\D/g,'').slice(0,10);
+      if(digits.length<=3)return digits;
+      if(digits.length<=6)return digits.slice(0,3)+' '+digits.slice(3);
+      return digits.slice(0,3)+' '+digits.slice(3,6)+' '+digits.slice(6);
+    }
+    phone.value=formatPhone(phone.value);
+    phone.addEventListener('input',function(){
+      const start=phone.selectionStart;
+      const before=phone.value;
+      const formatted=formatPhone(before);
+      phone.value=formatted;
+      const pos=Math.min(formatted.length, start + (formatted.length-before.length));
+      try{phone.setSelectionRange(pos,pos);}catch(e){}
+    });
+    phone.addEventListener('keydown',function(e){
+      if(e.key==='Backspace' && phone.selectionStart===phone.selectionEnd && phone.selectionStart>0 && phone.value[phone.selectionStart-1]===' '){
+        e.preventDefault();
+        const pos=phone.selectionStart-1;
+        phone.value=phone.value.slice(0,pos-1)+phone.value.slice(pos);
+        phone.setSelectionRange(pos-1,pos-1);
+        phone.dispatchEvent(new Event('input',{bubbles:true}));
+      }
+    });
+  }
+
+  function paintPin(){
+    slots.forEach((slot,index)=>{slot.textContent=entered[index]?'*':'';});
+  }
+  function resetPin(){entered='';paintPin();error.style.display='none';}
+  function openPin(){
+    login.classList.add('leaving');
+    setTimeout(function(){
+      login.style.display='none';
+      login.classList.remove('leaving');
+      pinScreen.classList.add('active');
+      pinScreen.setAttribute('aria-hidden','false');
+      resetPin();
+    },230);
+  }
+  function acceptPin(){
+    if(pinBusy)return;
+    if(entered!=='0301'){
+      error.style.display='block';
+      entered='';paintPin();
+      return;
+    }
+    pinBusy=true;
+    pinScreen.classList.remove('active');
+    pinScreen.setAttribute('aria-hidden','true');
+    loader.classList.remove('out');
+    loader.classList.add('on');
+    setTimeout(function(){
+      loader.classList.add('out');
+      setTimeout(function(){
+        loader.classList.remove('on','out');
+        if(home)home.classList.remove('hidden');
+        pinBusy=false;
+      },400);
+    },4600);
+  }
+  function addDigit(digit){
+    if(pinBusy||entered.length>=4)return;
+    error.style.display='none';
+    entered+=digit;paintPin();
+    if(entered.length===4)acceptPin();
+  }
+  document.querySelectorAll('.pin-key[data-digit]').forEach(button=>{
+    button.addEventListener('click',()=>addDigit(button.dataset.digit));
+  });
+  document.getElementById('pin-delete').addEventListener('click',function(){
+    if(pinBusy)return;
+    entered=entered.slice(0,-1);paintPin();error.style.display='none';
+  });
+  document.getElementById('pin-back').addEventListener('click',function(){
+    if(pinBusy)return;
+    pinScreen.classList.remove('active');pinScreen.setAttribute('aria-hidden','true');
+    login.style.display='flex';enter.classList.remove('loading');enter.disabled=false;resetPin();
+  });
+  document.getElementById('pin-forgot').addEventListener('click',function(){
+    error.textContent='Comunícate con soporte para recuperar tu clave.';
+    error.style.display='block';
+  });
+  document.addEventListener('keydown',function(e){
+    if(!pinScreen.classList.contains('active')||pinBusy)return;
+    if(/^\d$/.test(e.key))addDigit(e.key);
+    else if(e.key==='Backspace'){entered=entered.slice(0,-1);paintPin();error.style.display='none';}
+  });
+
+  enter.addEventListener('click',function(){
+    if(enter.classList.contains('loading'))return;
+    enter.classList.add('loading');
+    enter.disabled=true;
+    setTimeout(openPin,4000);
+  });
+})();
+</script>
+
+
